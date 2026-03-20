@@ -1,5 +1,12 @@
 import { Link } from 'react-router-dom';
-import { Camera, PlusSquare, Search, Bell, LogOut } from 'lucide-react';
+import {
+  Camera,
+  PlusSquare,
+  Search,
+  Bell,
+  LogOut,
+  Bookmark,
+} from "lucide-react";
 
 interface Props {
   username: string;
@@ -21,17 +28,32 @@ export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount =
 
         {/* Actions */}
         <div className="flex items-center gap-4">
-          <Link to="/explore" className="text-gray-500 hover:text-brand-500" title="Explore">
+          <Link
+            to="/explore"
+            className="text-gray-500 hover:text-brand-500"
+            title="Explore"
+          >
             <Search className="h-5 w-5" />
           </Link>
 
-          <Link to="/notifications" className="relative text-gray-500 hover:text-brand-500" title="Notifications">
+          <Link
+            to="/notifications"
+            className="relative text-gray-500 hover:text-brand-500"
+            title="Notifications"
+          >
             <Bell className="h-5 w-5" />
             {unreadCount > 0 && (
               <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-                {unreadCount > 9 ? '9+' : unreadCount}
+                {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
+          </Link>
+          <Link
+            to="/saved"
+            className="text-gray-500 hover:text-brand-500"
+            title="Saved"
+          >
+            <Bookmark className="h-5 w-5" />
           </Link>
 
           <button
@@ -42,15 +64,24 @@ export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount =
             Post
           </button>
 
-          <Link to={`/profile/${username}`} className="flex items-center gap-2 hover:opacity-80">
+          <Link
+            to={`/profile/${username}`}
+            className="flex items-center gap-2 hover:opacity-80"
+          >
             {avatar ? (
-              <img src={avatar} alt={username} className="h-8 w-8 rounded-full object-cover" />
+              <img
+                src={avatar}
+                alt={username}
+                className="h-8 w-8 rounded-full object-cover"
+              />
             ) : (
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-600">
                 {username.charAt(0).toUpperCase()}
               </div>
             )}
-            <span className="text-sm font-medium text-gray-700">{username}</span>
+            <span className="text-sm font-medium text-gray-700">
+              {username}
+            </span>
           </Link>
 
           <button

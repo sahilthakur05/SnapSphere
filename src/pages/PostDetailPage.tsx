@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Heart, MessageCircle, Send, ArrowLeft, Loader2 } from "lucide-react";
+import {
+  Heart,
+  MessageCircle,
+  Send,
+  ArrowLeft,
+  Loader2,
+  Bookmark,
+} from "lucide-react";
 import type { Post } from "../features/post/postSlice";
 
 interface Props {
@@ -10,6 +17,8 @@ interface Props {
   onLike: (postId: string) => void;
   onComment: (postId: string, text: string) => void;
   onBack: () => void;
+  isSaved: boolean; // ← add
+  onToggleSave: (postId: string) => void;
 }
 
 export function PostDetailPage({
@@ -19,6 +28,8 @@ export function PostDetailPage({
   onLike,
   onComment,
   onBack,
+    isSaved,                            // ← add
+  onToggleSave  
 }: Props) {
   const [commentText, setCommentText] = useState("");
 
@@ -56,10 +67,7 @@ export function PostDetailPage({
     <div className="min-h-screen bg-gray-50">
       {/* Top bar */}
       <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-gray-200 bg-white px-4 py-3">
-        <button
-          onClick={onBack}
-          className="text-gray-600 hover:text-gray-900"
-        >
+        <button onClick={onBack} className="text-gray-600 hover:text-gray-900">
           <ArrowLeft className="h-5 w-5" />
         </button>
         <h1 className="text-lg font-semibold text-gray-900">Post</h1>
@@ -100,28 +108,24 @@ export function PostDetailPage({
           </div>
 
           {/* Image */}
-          <img
-            src={post.image}
-            alt="Post"
-            className="w-full object-cover"
-          />
+          <img src={post.image} alt="Post" className="w-full object-cover" />
 
           {/* Actions */}
-          <div className="px-4 pt-3">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => onLike(post.id)}
-                className="flex items-center gap-1.5"
-              >
-                <Heart
-                  className={`h-6 w-6 ${isLiked ? "fill-red-500 text-red-500" : "text-gray-600 hover:text-red-500"}`}
-                />
-              </button>
-              <MessageCircle className="h-6 w-6 text-gray-600" />
-            </div>
-            <p className="mt-1 text-sm font-semibold text-gray-900">
-              {post.likes.length} likes
-            </p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => onLike(post.id)}
+              className="flex items-center gap-1.5"
+            >
+              <Heart
+                className={`h-6 w-6 ${isLiked ? "fill-red-500 text-red-500" : "text-gray-600 hover:text-red-500"}`}
+              />
+            </button>
+            <MessageCircle className="h-6 w-6 text-gray-600" />
+            <button onClick={() => onToggleSave(post.id)} className="ml-auto">
+              <Bookmark
+                className={`h-6 w-6 ${isSaved ? "fill-gray-900 text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
+              />
+            </button>
           </div>
 
           {/* Caption */}
@@ -147,10 +151,7 @@ export function PostDetailPage({
               </p>
               {post.comments.map((c) => (
                 <div key={c.id} className="flex gap-2">
-                  <Link
-                    to={`/profile/${c.user.username}`}
-                    className="shrink-0"
-                  >
+                  <Link to={`/profile/${c.user.username}`} className="shrink-0">
                     {c.user.avatar ? (
                       <img
                         src={c.user.avatar}

@@ -7,6 +7,7 @@ import { Navbar } from "../components/Navbar";
 import { Loader2 } from "lucide-react";
 import { PostCard } from "../components/PostCard";
 import { fetchNotifications } from "../features/notification/notificationSlice";
+import { toggleBookmark } from "../features/saved/savedSlice";
 
 export function HomePage() {
   const dispatch = useAppDispatch();
@@ -14,6 +15,7 @@ export function HomePage() {
   const { user } = useAppSelector((state) => state.auth);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { unreadCount } = useAppSelector((state) => state.notifications);
+  const { savedPostIds } = useAppSelector((state) => state.saved);
   //fetch post on mount
   useEffect(() => {
     dispatch(fetchPosts());
@@ -58,6 +60,8 @@ export function HomePage() {
               currentUserId={user?.id ?? ""}
               onLike={handleLike}
               onComment={handleComment}
+              isSaved={savedPostIds.includes(post.id)}
+              onToggleSave={(id) => dispatch(toggleBookmark(id))}
             />
           ))
         )}

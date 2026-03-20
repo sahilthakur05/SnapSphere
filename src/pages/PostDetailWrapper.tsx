@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { toggleBookmark } from '../features/saved/savedSlice';
 import {
   fetchPostById,
   toggleLikeSingle,
@@ -16,6 +17,7 @@ export function PostDetailWrapper() {
   const { singlePost, singlePostLoading } = useAppSelector(
     (state) => state.posts,
   );
+  const { savedPostIds } = useAppSelector((state) => state.saved);
   const currentUser = useAppSelector((state) => state.auth.user);
 
   useEffect(() => {
@@ -31,10 +33,10 @@ export function PostDetailWrapper() {
       isLoading={singlePostLoading}
       currentUserId={currentUser?.id ?? ""}
       onLike={(id) => dispatch(toggleLikeSingle(id))}
-      onComment={(id, text) =>
-        dispatch(addCommentSingle({ postId: id, text }))
-      }
+      onComment={(id, text) => dispatch(addCommentSingle({ postId: id, text }))}
       onBack={() => navigate(-1)}
+      onToggleSave={(id) => dispatch(toggleBookmark(id))}
+      isSaved={singlePost ? savedPostIds.includes(singlePost.id) : false}
     />
   );
 }
