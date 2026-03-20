@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, Send } from 'lucide-react';
 import type { Post } from '../features/post/postSlice';
 
@@ -13,6 +13,7 @@ interface Props {
 export function PostCard({ post, currentUserId, onLike, onComment }: Props) {
   const [commentText, setCommentText] = useState('');
   const isLiked = post.likes.includes(currentUserId);
+  const navigate = useNavigate();
 
   const handleComment = () => {
     if (!commentText.trim()) return;
@@ -45,7 +46,12 @@ export function PostCard({ post, currentUserId, onLike, onComment }: Props) {
       </div>
 
       {/* Image */}
-      <img src={post.image} alt="Post" className="w-full object-cover" />
+      <img
+        src={post.image}
+        alt="Post"
+        className="w-full cursor-pointer object-cover"
+        onClick={() => navigate(`/post/${post.id}`)}
+      />
 
       {/* Actions */}
       <div className="px-4 pt-3">
@@ -73,6 +79,14 @@ export function PostCard({ post, currentUserId, onLike, onComment }: Props) {
       {/* Comments preview */}
       {post.comments.length > 0 && (
         <div className="px-4 pt-2 space-y-1">
+          {post.comments.length > 2 && (
+            <button
+              onClick={() => navigate(`/post/${post.id}`)}
+              className="text-sm text-gray-400 hover:text-gray-600"
+            >
+              View all {post.comments.length} comments
+            </button>
+          )}
           {post.comments.slice(-2).map((c) => (
             <p key={c.id} className="text-sm text-gray-700">
               <Link to={`/profile/${c.user.username}`} className="font-semibold hover:underline">{c.user.username}</Link>{' '}

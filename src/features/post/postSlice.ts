@@ -33,12 +33,16 @@ interface PostState {
   posts: Post[];
   isLoading: boolean;
   error: string | null;
+  singlePost: Post | null;
+  singlePostLoading: boolean;
 }
 
 const initialState: PostState = {
   posts: [],
   isLoading: false,
   error: null,
+  singlePost: null,
+  singlePostLoading: false,
 };
 
 // Fetch feed posts
@@ -110,12 +114,63 @@ export const addComment = createAsyncThunk(
   },
 );
 
+// Fetch a single post by ID
+export const fetchPostById = createAsyncThunk(
+  "posts/fetchPostById",
+  async (postId: string, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/posts/${postId}`);
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch post",
+      );
+    }
+  },
+);
+
+// Like/unlike on the detail page (updates singlePost)
+export const toggleLikeSingle = createAsyncThunk(
+  "posts/toggleLikeSingle",
+  async (postId: string, { rejectWithValue }) => {
+    try {
+      const res = await api.put(`/posts/${postId}/like`);
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to like post",
+      );
+    }
+  },
+);
+
+// Add comment on the detail page (updates singlePost)
+export const addCommentSingle = createAsyncThunk(
+  "posts/addCommentSingle",
+  async (
+    { postId, text }: { postId: string; text: string },
+    { rejectWithValue },
+  ) => {
+    try {
+      const res = await api.post(`/posts/${postId}/comment`, { text });
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to add comment",
+      );
+    }
+  },
+);
+
 const postSlice = createSlice({
   name: "posts",
   initialState,
   reducers: {
     clearPostError(state) {
       state.error = null;
+    },
+    clearSinglePost(state) {
+      state.singlePost = null;
     },
   },
   extraReducers: (builder) => {
@@ -161,8 +216,58 @@ const postSlice = createSlice({
         if (post) post.comments.push(action.payload.comment);
       },
     );
+
+    // Fetch single post
+    builder.addCase(fetchPostById.pending, (state) => {
+      state.singlePostLoading = true;
+    });
+    builder.addCase(
+      fetchPostById.fulfilled,
+      (state, action: PayloadAction<Post>) => {
+        state.singlePostLoading = false;
+        state.singlePost = action.payload;
+      },
+    );
+    builder.addCase(fetchPostById.rejected, (state) => {
+      state.singlePostLoading = false;
+      state.singlePost = null;
+    });
+
+    // Like/unlike single post
+    builder.addCase(
+      toggleLikeSingle.fulfilled,
+      (state, action: PayloadAction<{ postId: string; likes: string[] }>) => {
+        if (
+          state.singlePost &&
+          state.singlePost.id === action.payload.postId
+        ) {
+          state.singlePost.likes = action.payload.likes;
+        }
+        const feedPost = state.posts.find(
+          (p) => p.id === action.payload.postId,
+        );
+        if (feedPost) feedPost.likes = action.payload.likes;
+      },
+    );
+
+    // Add comment to single post
+    builder.addCase(
+      addCommentSingle.fulfilled,
+      (state, action: PayloadAction<{ postId: string; comment: Comment }>) => {
+        if (
+          state.singlePost &&
+          state.singlePost.id === action.payload.postId
+        ) {
+          state.singlePost.comments.push(action.payload.comment);
+        }
+        const feedPost = state.posts.find(
+          (p) => p.id === action.payload.postId,
+        );
+        if (feedPost) feedPost.comments.push(action.payload.comment);
+      },
+    );
   },
 });
 
-export const { clearPostError } = postSlice.actions;
+export const { clearPostError, clearSinglePost } = postSlice.actions;
 export default postSlice.reducer;

@@ -8,6 +8,7 @@ import { HomePage } from "../pages/HomePage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { ExplorePage } from "../pages/ExplorePage";
 import { NotificationsPage } from "../pages/NotificationsPage";
+import { PostDetailWrapper } from "../pages/PostDetailWrapper";
 export function AppRoutes() {
   return (
     <Routes>
@@ -22,6 +23,7 @@ export function AppRoutes() {
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/profile/:username" element={<ProfilePage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/post/:postId" element={<PostDetailWrapper />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
