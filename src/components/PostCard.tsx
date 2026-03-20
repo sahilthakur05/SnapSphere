@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, MessageCircle, Send, Bookmark } from "lucide-react";
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2 } from "lucide-react";
 import type { Post } from '../features/post/postSlice';
-
+import { ConfirmModal } from "./ConfirmModal";
 interface Props {
   post: Post;
   currentUserId: string;
@@ -10,6 +10,7 @@ interface Props {
   onComment: (postId: string, text: string) => void;
   isSaved: boolean; // ← add
   onToggleSave: (postId: string) => void;
+  onDelete?: (postId: string) => void;
 }
 
 export function PostCard({
@@ -19,10 +20,14 @@ export function PostCard({
   onComment,
   isSaved,
   onToggleSave,
+  onDelete,
 }: Props) {
   const [commentText, setCommentText] = useState("");
   const isLiked = post.likes.includes(currentUserId);
   const navigate = useNavigate();
+const [showMenu, setShowMenu] = useState(false);
+const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+const isOwner = post.user.id === currentUserId;
 
   const handleComment = () => {
     if (!commentText.trim()) return;
@@ -61,6 +66,24 @@ export function PostCard({
             })}
           </p>
         </div>
+        {isOwner && onDelete && (
+          <div className="relative ml-auto">
+            <button onClick={() => setShowMenu(!showMenu)} className="text-gray-400 hover:text-gray-600">
+              <MoreHorizontal className="h-5 w-5" />
+            </button>
+            {showMenu && (
+              <div className="absolute right-0 top-8 z-10 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+                <button
+                  onClick={() => { setShowMenu(false); setShowDeleteConfirm(true); }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-gray-50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete Post
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Image */}
@@ -147,6 +170,18 @@ export function PostCard({
           <Send className="h-4 w-4" />
         </button>
       </div>
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This action cannot be undone."
+        confirmLabel="Delete"
+        isDestructive
+        onConfirm={() => {
+          onDelete?.(post.id);
+          setShowDeleteConfirm(false);
+        }}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 }

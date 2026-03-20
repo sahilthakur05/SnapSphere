@@ -7,6 +7,7 @@ import {
   toggleLikeSingle,
   addCommentSingle,
   clearSinglePost,
+  deletePost,
 } from "../features/post/postSlice";
 import { PostDetailPage } from "./PostDetailPage";
 
@@ -37,6 +38,7 @@ export function PostDetailWrapper() {
       onBack={() => navigate(-1)}
       onToggleSave={(id) => dispatch(toggleBookmark(id))}
       isSaved={singlePost ? savedPostIds.includes(singlePost.id) : false}
+      onDelete={(id) => { dispatch(deletePost(id)); navigate(-1); }}
     />
   );
 }

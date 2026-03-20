@@ -161,6 +161,20 @@ export const addCommentSingle = createAsyncThunk(
     }
   },
 );
+// Delete a post
+export const deletePost = createAsyncThunk(
+  "posts/deletePost",
+  async (postId: string, { rejectWithValue }) => {
+    try {
+      await api.delete(`/posts/${postId}`);
+      return postId;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to delete post",
+      );
+    }
+  },
+);
 
 const postSlice = createSlice({
   name: "posts",
@@ -237,10 +251,7 @@ const postSlice = createSlice({
     builder.addCase(
       toggleLikeSingle.fulfilled,
       (state, action: PayloadAction<{ postId: string; likes: string[] }>) => {
-        if (
-          state.singlePost &&
-          state.singlePost.id === action.payload.postId
-        ) {
+        if (state.singlePost && state.singlePost.id === action.payload.postId) {
           state.singlePost.likes = action.payload.likes;
         }
         const feedPost = state.posts.find(
@@ -254,16 +265,24 @@ const postSlice = createSlice({
     builder.addCase(
       addCommentSingle.fulfilled,
       (state, action: PayloadAction<{ postId: string; comment: Comment }>) => {
-        if (
-          state.singlePost &&
-          state.singlePost.id === action.payload.postId
-        ) {
+        if (state.singlePost && state.singlePost.id === action.payload.postId) {
           state.singlePost.comments.push(action.payload.comment);
         }
         const feedPost = state.posts.find(
           (p) => p.id === action.payload.postId,
         );
         if (feedPost) feedPost.comments.push(action.payload.comment);
+      },
+    );
+
+    // Delete post
+    builder.addCase(
+      deletePost.fulfilled,
+      (state, action: PayloadAction<string>) => {
+        state.posts = state.posts.filter((p) => p.id !== action.payload);
+        if (state.singlePost && state.singlePost.id === action.payload) {
+          state.singlePost = null;
+        }
       },
     );
   },

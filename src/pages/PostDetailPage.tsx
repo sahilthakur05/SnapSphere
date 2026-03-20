@@ -7,8 +7,11 @@ import {
   ArrowLeft,
   Loader2,
   Bookmark,
+  MoreHorizontal,
+  Trash2,
 } from "lucide-react";
 import type { Post } from "../features/post/postSlice";
+import { ConfirmModal } from "../components/ConfirmModal";
 
 interface Props {
   post: Post | null;
@@ -17,8 +20,9 @@ interface Props {
   onLike: (postId: string) => void;
   onComment: (postId: string, text: string) => void;
   onBack: () => void;
-  isSaved: boolean; // ← add
+  isSaved: boolean;
   onToggleSave: (postId: string) => void;
+  onDelete?: (postId: string) => void;
 }
 
 export function PostDetailPage({
@@ -28,10 +32,13 @@ export function PostDetailPage({
   onLike,
   onComment,
   onBack,
-    isSaved,                            // ← add
-  onToggleSave  
+    isSaved,
+  onToggleSave,
+  onDelete,
 }: Props) {
   const [commentText, setCommentText] = useState("");
+  const [showMenu, setShowMenu] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleComment = () => {
     if (!commentText.trim() || !post) return;
@@ -105,6 +112,24 @@ export function PostDetailPage({
                 })}
               </p>
             </div>
+            {post.user.id === currentUserId && onDelete && (
+              <div className="relative ml-auto">
+                <button onClick={() => setShowMenu(!showMenu)} className="text-gray-400 hover:text-gray-600">
+                  <MoreHorizontal className="h-5 w-5" />
+                </button>
+                {showMenu && (
+                  <div className="absolute right-0 top-8 z-10 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+                    <button
+                      onClick={() => { setShowMenu(false); setShowDeleteConfirm(true); }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-gray-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete Post
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Image */}
@@ -206,6 +231,15 @@ export function PostDetailPage({
           </div>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This action cannot be undone."
+        confirmLabel="Delete"
+        isDestructive
+        onConfirm={() => { onDelete?.(post.id); setShowDeleteConfirm(false); }}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 }

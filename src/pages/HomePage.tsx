@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { CreatePostModal } from "../components/CreatePostModal";
-import { addComment, fetchPosts, toggleLike } from "../features/post/postSlice";
+import { addComment, deletePost, fetchPosts, toggleLike } from "../features/post/postSlice";
 import { logout } from "../features/auth/authSlice";
 import { Navbar } from "../components/Navbar";
 import { Loader2 } from "lucide-react";
@@ -62,6 +62,7 @@ export function HomePage() {
               onComment={handleComment}
               isSaved={savedPostIds.includes(post.id)}
               onToggleSave={(id) => dispatch(toggleBookmark(id))}
+              onDelete={(id) => dispatch(deletePost(id))}
             />
           ))
         )}

@@ -19,5 +19,6 @@
 - [x] Step 16 — Followers/Following List Modal
 - [x] Step 17 — Post Detail Page
 - [x] Step 18 — Bookmark / Save Posts
+- [x] Step 19 — Delete Post
 
-> Tell me when done and I'll add the next task!
+> Tell me when ready and I'll add the next task!
