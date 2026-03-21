@@ -10,6 +10,7 @@ import { ExplorePage } from "../pages/ExplorePage";
 import { NotificationsPage } from "../pages/NotificationsPage";
 import { PostDetailWrapper } from "../pages/PostDetailWrapper";
 import { SavedPostsWrapper } from "../pages/SavedPostsWrapper";
+import { ForgotPasswordWrapper } from "../pages/ForgotPasswordWrapper";
 export function AppRoutes() {
   return (
     <Routes>
@@ -17,6 +18,7 @@ export function AppRoutes() {
       <Route element={<PublicRoute />}>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordWrapper />} />
       </Route>
       {/* Private routes — redirect to login if not logged in */}
       <Route element={<PrivateRoute />}>

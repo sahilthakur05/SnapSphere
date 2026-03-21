@@ -104,6 +104,21 @@ export const changePassword = createAsyncThunk(
   },
 );
 
+// Forgot password
+export const forgotPassword = createAsyncThunk(
+  "auth/forgotPassword",
+  async (email: string, { rejectWithValue }) => {
+    try {
+      await api.post("/auth/forgot-password", { email });
+      return true;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to send reset email",
+      );
+    }
+  },
+);
+
 // Delete account
 export const deleteAccount = createAsyncThunk(
   "auth/deleteAccount",
