@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2, Pencil, Link2, Check } from "lucide-react";
 import type { Post } from '../features/post/postSlice';
 import { ConfirmModal } from "./ConfirmModal";
+import { ImageLightbox } from "./ImageLightbox";
 import { timeAgo } from "../lib/timeAgo";
 interface Props {
   post: Post;
@@ -35,6 +36,7 @@ const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 const [showShareMenu, setShowShareMenu] = useState(false);
 const [copied, setCopied] = useState(false);
 const [showHeartAnim, setShowHeartAnim] = useState(false);
+const [showLightbox, setShowLightbox] = useState(false);
 const lastTapRef = useRef(0);
 const isOwner = post.user.id === currentUserId;
 
@@ -44,12 +46,21 @@ const isOwner = post.user.id === currentUserId;
     setCommentText("");
   };
 
-  const handleDoubleTap = () => {
+  const singleTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleImageTap = () => {
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
+      // Double tap — like
+      if (singleTapTimer.current) clearTimeout(singleTapTimer.current);
       if (!isLiked) onLike(post.id);
       setShowHeartAnim(true);
       setTimeout(() => setShowHeartAnim(false), 800);
+    } else {
+      // Single tap — open lightbox (delayed to check for double tap)
+      singleTapTimer.current = setTimeout(() => {
+        setShowLightbox(true);
+      }, 300);
     }
     lastTapRef.current = now;
   };
@@ -111,8 +122,8 @@ const isOwner = post.user.id === currentUserId;
         )}
       </div>
 
-      {/* Image with double-tap to like */}
-      <div className="relative" onClick={handleDoubleTap}>
+      {/* Image with double-tap to like, single-tap for lightbox */}
+      <div className="relative" onClick={handleImageTap}>
         <img
           src={post.image}
           alt="Post"
@@ -255,6 +266,12 @@ const isOwner = post.user.id === currentUserId;
           setShowDeleteConfirm(false);
         }}
         onCancel={() => setShowDeleteConfirm(false)}
+      />
+      <ImageLightbox
+        isOpen={showLightbox}
+        onClose={() => setShowLightbox(false)}
+        src={post.image}
+        alt={`Post by ${post.user.username}`}
       />
     </div>
   );

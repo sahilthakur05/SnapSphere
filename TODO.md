@@ -30,5 +30,6 @@
 - [x] Step 27 — Infinite Scroll / Load More Posts
 - [x] Step 28 — Skeleton Loading Screens
 - [x] Step 29 — Relative Time Formatting
+- [x] Step 30 — Image Lightbox Modal
 
 > Tell me when ready and I'll add the next task!
