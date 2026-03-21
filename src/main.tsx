@@ -5,10 +5,22 @@ import App from './App.tsx'
 import { Provider } from 'react-redux'
 import { store } from './app/store.ts'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <Provider store = {store}>
-    <App />
-    </Provider>
-  </StrictMode>,
-)
+async function startApp() {
+  // Start mock API in development
+  if (import.meta.env.DEV) {
+    const { worker } = await import('./mocks/browser.ts');
+    await worker.start({
+      onUnhandledRequest: 'bypass',
+    });
+  }
+
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </StrictMode>,
+  );
+}
+
+startApp();
