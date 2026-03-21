@@ -82,6 +82,28 @@ export const loadUser = createAsyncThunk(
   },
 );
 
+// change password
+
+export const changePassword = createAsyncThunk(
+  "auth/changePassword",
+  async (
+    {
+      currentPassword,
+      newPassword,
+    }: { currentPassword: string; newPassword: string },
+    { rejectWithValue },
+  ) => {
+    try {
+      const res = await api.put("/auth/change-password",{currentPassword,newPassword});
+      return res.data
+    } catch (err:any) {
+       return rejectWithValue(
+         err.response?.data?.message || "Failed to change password",
+       );
+    }
+  },
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -159,5 +181,5 @@ const authSlice = createSlice({
     });
   },
 });
-export const {logout,clearError}=authSlice.actions
+export const { logout, clearError } = authSlice.actions;
 export default authSlice.reducer;

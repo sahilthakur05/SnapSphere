@@ -15,6 +15,8 @@ import {
   updateProfile,
 } from "../features/profile/profileSlice";
 import { FollowListModal } from "../components/FollowListModal";
+import { ChangePasswordModal } from "../components/ChangePasswordModal";
+import { changePassword } from "../features/auth/authSlice";
 export function ProfilePage() {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
@@ -29,6 +31,9 @@ export function ProfilePage() {
   const [followModalType, setFollowModalType] = useState<
     "Followers" | "Following" | null
   >(null);
+  const [showPasswordModal,setShowPasswordModal]=useState(false)
+const [isChangingPassword, setIsChangingPassword] = useState(false);
+const [passwordError, setPasswordError] = useState<string | null>(null);
 
   useEffect(() => {
     if (username) dispatch(fetchProfile(username));
@@ -89,6 +94,18 @@ export function ProfilePage() {
     setShowEditModal(false);
   };
 
+  const handleChangePassword = async(data:{currentPassword:string;newPassword:string})=>{
+    setPasswordError(null)
+    setIsChangingPassword(true)
+    const result = await dispatch(changePassword(data))
+    setIsChangingPassword(false)
+    if(changePassword.fulfilled.match(result)){
+      setShowPasswordModal(false)
+    }else{
+      setPasswordError(result.payload as string)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar
@@ -119,12 +136,20 @@ export function ProfilePage() {
                 {profile.username}
               </h1>
               {isOwnProfile ? (
-                <button
-                  onClick={() => setShowEditModal(true)}
-                  className="rounded-lg border border-gray-300 bg-white px-4 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-                >
-                  Edit Profile
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowEditModal(true)}
+                    className="rounded-lg border border-gray-300 bg-white px-4 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                  >
+                    Edit Profile
+                  </button>
+                  <button
+                    onClick={() => setShowPasswordModal(true)}
+                    className="rounded-lg border border-gray-300 bg-white px-4 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                  >
+                    Change Password
+                  </button>
+                </div>
               ) : (
                 <button
                   onClick={handleFollow}
@@ -213,6 +238,16 @@ export function ProfilePage() {
           currentAvatar={profile.avatar}
           onSave={handleSaveProfile}
           isSaving={isSaving}
+        />
+        <ChangePasswordModal
+          isOpen={showPasswordModal}
+          onClose={() => {
+            setShowPasswordModal(false);
+            setPasswordError(null);
+          }}
+          onSubmit={handleChangePassword}
+          isSubmitting={isChangingPassword}
+          error={passwordError}
         />
         <FollowListModal
           isOpen={followModalType !== null}

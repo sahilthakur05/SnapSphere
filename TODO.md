@@ -33,5 +33,71 @@
 - [x] Step 30 — Image Lightbox Modal
 - [x] Step 31 — Profile Grid Hover Stats & Navigation
 - [x] Step 32 — Explore Page Discover Grid
+- [ ] Step 33 — Change Password
+
+---
+
+## Step 33 — Change Password
+
+**What's already done (UI):**
+- `src/components/ChangePasswordModal.tsx` — Modal with current password, new password (with show/hide toggle), confirm password fields. Has client-side validation (required, min 6 chars, match check). Shows error messages from both client and server. Accepts props: `isOpen`, `onClose`, `onSubmit`, `isSubmitting`, `error`.
+- `src/pages/ProfilePage.tsx` — Added a "Change Password" button next to "Edit Profile" (own profile only). Uses `showPasswordModal` state (you need to add it).
+
+**Your tasks (Logic):**
+
+### 1. Add `changePassword` thunk in `src/features/auth/authSlice.ts`
+
+```ts
+export const changePassword = createAsyncThunk(
+  "auth/changePassword",
+  async ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.put("/auth/change-password", { currentPassword, newPassword });
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || "Failed to change password");
+    }
+  }
+);
+```
+
+### 2. Wire it up in `src/pages/ProfilePage.tsx`
+
+```ts
+import { ChangePasswordModal } from "../components/ChangePasswordModal";
+import { changePassword } from "../features/auth/authSlice";
+
+// Add state:
+const [showPasswordModal, setShowPasswordModal] = useState(false);
+const [isChangingPassword, setIsChangingPassword] = useState(false);
+const [passwordError, setPasswordError] = useState<string | null>(null);
+
+// Add handler:
+const handleChangePassword = async (data: { currentPassword: string; newPassword: string }) => {
+  setPasswordError(null);
+  setIsChangingPassword(true);
+  const result = await dispatch(changePassword(data));
+  setIsChangingPassword(false);
+  if (changePassword.fulfilled.match(result)) {
+    setShowPasswordModal(false);
+  } else {
+    setPasswordError(result.payload as string);
+  }
+};
+
+// Render the modal (after EditProfileModal):
+<ChangePasswordModal
+  isOpen={showPasswordModal}
+  onClose={() => { setShowPasswordModal(false); setPasswordError(null); }}
+  onSubmit={handleChangePassword}
+  isSubmitting={isChangingPassword}
+  error={passwordError}
+/>
+```
+
+---
+
+### Backend endpoint needed:
+`PUT /auth/change-password` — accepts `{ currentPassword, newPassword }`, verifies current password, updates to new password.
 
 > Tell me when ready and I'll add the next task!
