@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2, Pencil, Link2, Check } from "lucide-react";
 import type { Post } from '../features/post/postSlice';
@@ -33,12 +33,24 @@ const [showMenu, setShowMenu] = useState(false);
 const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 const [showShareMenu, setShowShareMenu] = useState(false);
 const [copied, setCopied] = useState(false);
+const [showHeartAnim, setShowHeartAnim] = useState(false);
+const lastTapRef = useRef(0);
 const isOwner = post.user.id === currentUserId;
 
   const handleComment = () => {
     if (!commentText.trim()) return;
     onComment(post.id, commentText.trim());
     setCommentText("");
+  };
+
+  const handleDoubleTap = () => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      if (!isLiked) onLike(post.id);
+      setShowHeartAnim(true);
+      setTimeout(() => setShowHeartAnim(false), 800);
+    }
+    lastTapRef.current = now;
   };
 
   return (
@@ -101,13 +113,19 @@ const isOwner = post.user.id === currentUserId;
         )}
       </div>
 
-      {/* Image */}
-      <img
-        src={post.image}
-        alt="Post"
-        className="w-full cursor-pointer object-cover"
-        onClick={() => navigate(`/post/${post.id}`)}
-      />
+      {/* Image with double-tap to like */}
+      <div className="relative" onClick={handleDoubleTap}>
+        <img
+          src={post.image}
+          alt="Post"
+          className="w-full cursor-pointer object-cover"
+        />
+        {showHeartAnim && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <Heart className="h-20 w-20 animate-ping fill-white text-white drop-shadow-lg" />
+          </div>
+        )}
+      </div>
 
       {/* Actions */}
       <div className="flex items-center gap-4 px-4 pt-2">

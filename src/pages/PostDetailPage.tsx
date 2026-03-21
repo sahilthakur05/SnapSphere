@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Heart,
@@ -48,6 +48,19 @@ export function PostDetailPage({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showHeartAnim, setShowHeartAnim] = useState(false);
+  const lastTapRef = useRef(0);
+
+  const handleDoubleTap = () => {
+    if (!post) return;
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      if (!post.likes.includes(currentUserId)) onLike(post.id);
+      setShowHeartAnim(true);
+      setTimeout(() => setShowHeartAnim(false), 800);
+    }
+    lastTapRef.current = now;
+  };
 
   const handleComment = () => {
     if (!commentText.trim() || !post) return;
@@ -141,8 +154,15 @@ export function PostDetailPage({
             )}
           </div>
 
-          {/* Image */}
-          <img src={post.image} alt="Post" className="w-full object-cover" />
+          {/* Image with double-tap to like */}
+          <div className="relative" onClick={handleDoubleTap}>
+            <img src={post.image} alt="Post" className="w-full object-cover" />
+            {showHeartAnim && (
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <Heart className="h-20 w-20 animate-ping fill-white text-white drop-shadow-lg" />
+              </div>
+            )}
+          </div>
 
           {/* Actions */}
           <div className="flex items-center gap-4 px-4 pt-2">

@@ -26,6 +26,7 @@
 - [x] Step 23 — Suggested Users Sidebar
 - [x] Step 24 — Share Post (Copy Link)
 - [ ] Step 25 — Mobile Bottom Navigation Bar
+- [x] Step 26 — Double Tap to Like (Heart Animation)
 
 ---
 
