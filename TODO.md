@@ -22,66 +22,131 @@
 - [x] Step 19 — Delete Post
 - [x] Step 20 — Edit Post
 - [x] Step 21 — Likes List Modal
-- [ ] Step 22 — Delete Comment
+- [x] Step 22 — Delete Comment
+- [ ] Step 23 — Suggested Users Sidebar
 
 ---
 
-## Step 22 — Delete Comment
+## Step 23 — Suggested Users Sidebar
 
 **What's already done (UI):**
-- `src/pages/PostDetailPage.tsx` — Updated with `onDeleteComment?: (postId: string, commentId: string) => void` prop. Each comment now shows a small **X** button on hover if the comment belongs to the current user.
+- `src/components/SuggestedUsers.tsx` — Pure UI component showing the current user's info at top, then a "Suggested for you" list with avatar, username, full name, and a **Follow** button for each user. Accepts props: `currentUser`, `users`, `isLoading`, `onFollow`.
+- `src/pages/HomePage.tsx` — Layout updated to a two-column design: feed on the left, sticky sidebar on the right (visible on `lg:` screens and up). The sidebar has a `{/* TODO */}` placeholder for you to wire the component.
 
 **Your tasks (Logic):**
 
-### 1. Add `deleteComment` thunk in `src/features/post/postSlice.ts`
+### 1. Create `src/features/suggestion/suggestionSlice.ts`
 
 ```ts
-export const deleteComment = createAsyncThunk(
-  "posts/deleteComment",
-  async ({ postId, commentId }: { postId: string; commentId: string }, { rejectWithValue }) => {
+import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import api from "../../lib/axios";
+
+interface SuggestedUser {
+  id: string;
+  username: string;
+  fullName: string;
+  avatar: string;
+}
+
+interface SuggestionState {
+  users: SuggestedUser[];
+  isLoading: boolean;
+}
+
+const initialState: SuggestionState = {
+  users: [],
+  isLoading: false,
+};
+
+export const fetchSuggestions = createAsyncThunk(
+  "suggestions/fetch",
+  async (_, { rejectWithValue }) => {
     try {
-      await api.delete(`/posts/${postId}/comment/${commentId}`);
-      return { postId, commentId };
+      const res = await api.get("/users/suggestions");
+      return res.data;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || "Failed to delete comment");
+      return rejectWithValue(err.response?.data?.message || "Failed to fetch suggestions");
     }
   }
 );
-```
 
-### 2. Add the `extraReducer` in `postSlice.ts`
-
-```ts
-// Delete comment
-builder.addCase(
-  deleteComment.fulfilled,
-  (state, action: PayloadAction<{ postId: string; commentId: string }>) => {
-    const { postId, commentId } = action.payload;
-    // Update feed posts
-    const post = state.posts.find((p) => p.id === postId);
-    if (post) {
-      post.comments = post.comments.filter((c) => c.id !== commentId);
-    }
-    // Update single post
-    if (state.singlePost && state.singlePost.id === postId) {
-      state.singlePost.comments = state.singlePost.comments.filter((c) => c.id !== commentId);
+export const followUser = createAsyncThunk(
+  "suggestions/follow",
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      await api.put(`/users/${userId}/follow`);
+      return userId;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || "Failed to follow user");
     }
   }
 );
+
+const suggestionSlice = createSlice({
+  name: "suggestions",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder.addCase(fetchSuggestions.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(fetchSuggestions.fulfilled, (state, action: PayloadAction<SuggestedUser[]>) => {
+      state.isLoading = false;
+      state.users = action.payload;
+    });
+    builder.addCase(fetchSuggestions.rejected, (state) => {
+      state.isLoading = false;
+    });
+    // Remove user from suggestions after following
+    builder.addCase(followUser.fulfilled, (state, action: PayloadAction<string>) => {
+      state.users = state.users.filter((u) => u.id !== action.payload);
+    });
+  },
+});
+
+export default suggestionSlice.reducer;
 ```
 
-### 3. Wire it up in `src/pages/PostDetailWrapper.tsx`
+### 2. Register the slice in `src/app/store.ts`
 
 ```ts
-import { deleteComment } from "../features/post/postSlice";
+import suggestionReducer from "../features/suggestion/suggestionSlice";
 
-// Pass to <PostDetailPage>:
-onDeleteComment={(postId, commentId) => dispatch(deleteComment({ postId, commentId }))}
+// Add to the reducer map:
+suggestions: suggestionReducer,
+```
+
+### 3. Wire it up in `src/pages/HomePage.tsx`
+
+Replace the `{/* TODO */}` comment in the `<aside>` with:
+
+```ts
+import { SuggestedUsers } from "../components/SuggestedUsers";
+import { fetchSuggestions, followUser } from "../features/suggestion/suggestionSlice";
+
+// Inside component, add to selectors:
+const { users: suggestedUsers, isLoading: suggestionsLoading } = useAppSelector((state) => state.suggestions);
+
+// Add to the useEffect:
+dispatch(fetchSuggestions());
+
+// Replace the aside TODO comment:
+<SuggestedUsers
+  currentUser={{
+    username: user?.username ?? "",
+    fullName: user?.fullName,
+    avatar: user?.avatar,
+  }}
+  users={suggestedUsers}
+  isLoading={suggestionsLoading}
+  onFollow={(id) => dispatch(followUser(id))}
+/>
 ```
 
 ---
 
 ### Backend endpoint needed:
-`DELETE /posts/:postId/comment/:commentId` — deletes the comment. Only the comment owner should be allowed to delete.
+- `GET /users/suggestions` — returns an array of suggested users `[{ id, username, fullName, avatar }]` (users the current user is not yet following).
+- `PUT /users/:userId/follow` — toggles follow/unfollow (you may already have this from the profile page).
 
 > Tell me when ready and I'll add the next task!

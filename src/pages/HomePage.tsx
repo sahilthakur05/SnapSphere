@@ -18,7 +18,11 @@ import { fetchNotifications } from "../features/notification/notificationSlice";
 import { toggleBookmark } from "../features/saved/savedSlice";
 import { EditPostModal } from "../components/EditPostModal";
 import { LikesListModal } from "../components/LikesListModal";
-
+import { SuggestedUsers } from "../components/SuggestedUsers";
+import {
+  fetchSuggestions,
+  followUser,
+} from "../features/suggestion/suggestionSlice";
 export function HomePage() {
   const dispatch = useAppDispatch();
   const { posts, isLoading } = useAppSelector((state) => state.posts);
@@ -32,11 +36,14 @@ export function HomePage() {
   const { likeUsers, likeUsersLoading } = useAppSelector(
     (state) => state.posts,
   );
+  const { users: suggestedUsers, isLoading: suggestionsLoading } =
+    useAppSelector((state) => state.suggestions);
   const [showLikesModal, setShowLikesModal] = useState(false);
   //fetch post on mount
   useEffect(() => {
     dispatch(fetchPosts());
     dispatch(fetchNotifications());
+    dispatch(fetchSuggestions())
   }, [dispatch]);
   const handleLike = (postId: string) => {
     dispatch(toggleLike(postId));
@@ -75,35 +82,52 @@ export function HomePage() {
         unreadCount={unreadCount}
       />
 
-      <main className="mx-auto max-w-2xl px-4 py-6 space-y-6">
-        {isLoading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-brand-500" />
-          </div>
-        ) : posts.length === 0 ? (
-          <div className="py-20 text-center text-gray-400">
-            <p className="text-lg font-medium">No posts yet</p>
-            <p className="text-sm">
-              Create a post or follow someone to see their posts here.
-            </p>
-          </div>
-        ) : (
-          posts.map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              currentUserId={user?.id ?? ""}
-              onLike={handleLike}
-              onComment={handleComment}
-              isSaved={savedPostIds.includes(post.id)}
-              onToggleSave={(id) => dispatch(toggleBookmark(id))}
-              onDelete={(id) => dispatch(deletePost(id))}
-              onEdit={handleEdit}
-              onShowLikes={handleShowLikes}
-            />
-          ))
-        )}
-      </main>
+      <div className="mx-auto flex max-w-5xl gap-8 px-4 py-6">
+        {/* Feed */}
+        <main className="flex-1 max-w-2xl space-y-6">
+          {isLoading ? (
+            <div className="flex justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-brand-500" />
+            </div>
+          ) : posts.length === 0 ? (
+            <div className="py-20 text-center text-gray-400">
+              <p className="text-lg font-medium">No posts yet</p>
+              <p className="text-sm">
+                Create a post or follow someone to see their posts here.
+              </p>
+            </div>
+          ) : (
+            posts.map((post) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                currentUserId={user?.id ?? ""}
+                onLike={handleLike}
+                onComment={handleComment}
+                isSaved={savedPostIds.includes(post.id)}
+                onToggleSave={(id) => dispatch(toggleBookmark(id))}
+                onDelete={(id) => dispatch(deletePost(id))}
+                onEdit={handleEdit}
+                onShowLikes={handleShowLikes}
+              />
+            ))
+          )}
+        </main>
+
+        {/* Suggested Users Sidebar (desktop only) */}
+        <aside className="sticky top-20 hidden h-fit lg:block">
+          <SuggestedUsers
+            currentUser={{
+              username: user?.username ?? "",
+              fullName: user?.fullName,
+              avatar: user?.avatar,
+            }}
+            users={suggestedUsers}
+            isLoading={suggestionsLoading}
+            onFollow={(id) => dispatch(followUser(id))}
+          />
+        </aside>
+      </div>
 
       <CreatePostModal
         isOpen={showCreateModal}
