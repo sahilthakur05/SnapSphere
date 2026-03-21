@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 
 import { logout } from "../features/auth/authSlice";
 import { Navbar } from "../components/Navbar";
+import { BottomNav } from "../components/BottomNav";
 import { Grid3X3, Heart } from "lucide-react";
 import { ProfileSkeleton } from "../components/ProfileSkeleton";
 import { EditProfileModal } from "../components/EditProfileModal";
@@ -107,7 +108,7 @@ const [passwordError, setPasswordError] = useState<string | null>(null);
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-16 lg:pb-0">
       <Navbar
         username={authUser?.username ?? ""}
         avatar={authUser?.avatar}
@@ -261,6 +262,11 @@ const [passwordError, setPasswordError] = useState<string | null>(null);
           isLoading={followListLoading}
         />
       </main>
+      <BottomNav
+        username={authUser?.username ?? ""}
+        avatar={authUser?.avatar}
+        onCreatePost={() => navigate("/")}
+      />
     </div>
   );
 }

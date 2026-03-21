@@ -5,6 +5,7 @@ import { searchUsers, fetchExplorePosts } from '../features/search/searchSlice';
 import { followUser } from '../features/suggestion/suggestionSlice';
 import { logout } from '../features/auth/authSlice';
 import { Navbar } from '../components/Navbar';
+import { BottomNav } from '../components/BottomNav';
 import { Search, Loader2 } from 'lucide-react';
 import { ExploreGrid } from '../components/ExploreGrid';
 import { UserCard } from '../components/UserCard';
@@ -32,7 +33,7 @@ export function ExplorePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-16 lg:pb-0">
       <Navbar
         username={authUser?.username ?? ''}
         avatar={authUser?.avatar}
@@ -82,6 +83,11 @@ export function ExplorePage() {
           </div>
         )}
       </main>
+      <BottomNav
+        username={authUser?.username ?? ''}
+        avatar={authUser?.avatar}
+        onCreatePost={() => navigate('/')}
+      />
     </div>
   );
 }

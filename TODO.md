@@ -41,5 +41,6 @@
 - [x] Step 38 — Report Post
 - [x] Step 39 — Desktop Post Detail Layout
 - [x] Step 40 — Improved Notifications Page
+- [x] Step 41 — Saved Posts Hover Stats & BottomNav on All Pages
 
 > Tell me when ready and I'll add the next task!

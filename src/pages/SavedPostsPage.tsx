@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Bookmark, Loader2 } from "lucide-react";
+import { Bookmark, Loader2, Heart } from "lucide-react";
 import type { Post } from "../features/post/postSlice";
 
 interface Props {
@@ -41,13 +41,19 @@ export function SavedPostsPage({ posts, isLoading }: Props) {
             <Link
               key={post.id}
               to={`/post/${post.id}`}
-              className="aspect-square overflow-hidden"
+              className="group relative aspect-square overflow-hidden"
             >
               <img
                 src={post.image}
                 alt="Saved post"
-                className="h-full w-full object-cover hover:opacity-90"
+                className="h-full w-full object-cover transition-opacity group-hover:opacity-75"
               />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+                <span className="flex items-center gap-1 text-sm font-semibold text-white drop-shadow-lg">
+                  <Heart className="h-5 w-5 fill-white" />
+                  {post.likes.length}
+                </span>
+              </div>
             </Link>
           ))}
         </div>
