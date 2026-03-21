@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { CreatePostModal } from "../components/CreatePostModal";
-import { addComment, deletePost, fetchPosts, toggleLike } from "../features/post/postSlice";
+import {
+  addComment,
+  deletePost,
+  editPost,
+  fetchPosts,
+  toggleLike,
+} from "../features/post/postSlice";
+import type { Post } from "../features/post/postSlice";
 import { logout } from "../features/auth/authSlice";
 import { Navbar } from "../components/Navbar";
 import { Loader2 } from "lucide-react";
 import { PostCard } from "../components/PostCard";
 import { fetchNotifications } from "../features/notification/notificationSlice";
 import { toggleBookmark } from "../features/saved/savedSlice";
-
+import { EditPostModal } from "../components/EditPostModal";
 export function HomePage() {
   const dispatch = useAppDispatch();
   const { posts, isLoading } = useAppSelector((state) => state.posts);
@@ -16,10 +23,13 @@ export function HomePage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { unreadCount } = useAppSelector((state) => state.notifications);
   const { savedPostIds } = useAppSelector((state) => state.saved);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [editCaption, setEditCaption] = useState("");
+  const [isEditSubmitting, setIsEditSubmitting] = useState(false);
   //fetch post on mount
   useEffect(() => {
     dispatch(fetchPosts());
-    dispatch(fetchNotifications())
+    dispatch(fetchNotifications());
   }, [dispatch]);
   const handleLike = (postId: string) => {
     dispatch(toggleLike(postId));
@@ -30,6 +40,20 @@ export function HomePage() {
   const handleLogout = () => {
     dispatch(logout());
   };
+
+  const handleEdit = (post: Post) => {
+    setEditingPost(post);
+    setEditCaption(post.caption);
+  };
+
+
+  const handleSaveEdit = async()=>{
+    if(!editingPost)return
+    setIsEditSubmitting(true)
+    await dispatch(editPost({postId:editingPost.id,caption:editCaption}))
+    setIsEditSubmitting(false)
+    setEditingPost(null)
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar
@@ -63,6 +87,7 @@ export function HomePage() {
               isSaved={savedPostIds.includes(post.id)}
               onToggleSave={(id) => dispatch(toggleBookmark(id))}
               onDelete={(id) => dispatch(deletePost(id))}
+              onEdit={handleEdit}
             />
           ))
         )}
@@ -71,6 +96,15 @@ export function HomePage() {
       <CreatePostModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
+      />
+      <EditPostModal
+        isOpen={!!editingPost}
+        onClose={() => setEditingPost(null)}
+        postImage={editingPost?.image || ""}
+        caption={editCaption}
+        onCaptionChange={setEditCaption}
+        onSave={handleSaveEdit}
+        isSubmitting={isEditSubmitting}
       />
     </div>
   );

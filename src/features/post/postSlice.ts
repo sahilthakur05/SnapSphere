@@ -176,6 +176,24 @@ export const deletePost = createAsyncThunk(
   },
 );
 
+// edit a post
+export const editPost = createAsyncThunk(
+  "posts/editPost",
+  async (
+    { postId, caption }: { postId: string; caption: string },
+    { rejectWithValue },
+  ) => {
+    try {
+      const res = await api.put(`/posts/${postId}`, { caption });
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to edit post",
+      );
+    }
+  },
+);
+
 const postSlice = createSlice({
   name: "posts",
   initialState,
@@ -282,6 +300,18 @@ const postSlice = createSlice({
         state.posts = state.posts.filter((p) => p.id !== action.payload);
         if (state.singlePost && state.singlePost.id === action.payload) {
           state.singlePost = null;
+        }
+      },
+    );
+
+    // edit post
+    builder.addCase(
+      editPost.fulfilled,
+      (state, action: PayloadAction<Post>) => {
+        const idx = state.posts.findIndex((p) => p.id === action.payload.id);
+        if (idx !== -1) state.posts[idx] = action.payload;
+        if (state.singlePost && state.singlePost.id === action.payload.id) {
+          state.singlePost = action.payload;
         }
       },
     );

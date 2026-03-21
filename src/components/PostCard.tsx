@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2 } from "lucide-react";
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2, Pencil } from "lucide-react";
 import type { Post } from '../features/post/postSlice';
 import { ConfirmModal } from "./ConfirmModal";
 interface Props {
@@ -11,6 +11,7 @@ interface Props {
   isSaved: boolean; // ← add
   onToggleSave: (postId: string) => void;
   onDelete?: (postId: string) => void;
+  onEdit?: (post: Post) => void;
 }
 
 export function PostCard({
@@ -21,6 +22,7 @@ export function PostCard({
   isSaved,
   onToggleSave,
   onDelete,
+  onEdit,
 }: Props) {
   const [commentText, setCommentText] = useState("");
   const isLiked = post.likes.includes(currentUserId);
@@ -66,13 +68,22 @@ const isOwner = post.user.id === currentUserId;
             })}
           </p>
         </div>
-        {isOwner && onDelete && (
+        {isOwner && (onDelete || onEdit) && (
           <div className="relative ml-auto">
             <button onClick={() => setShowMenu(!showMenu)} className="text-gray-400 hover:text-gray-600">
               <MoreHorizontal className="h-5 w-5" />
             </button>
             {showMenu && (
               <div className="absolute right-0 top-8 z-10 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+                {onEdit && (
+                  <button
+                    onClick={() => { setShowMenu(false); onEdit(post); }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Pencil className="h-4 w-4" />
+                    Edit Post
+                  </button>
+                )}
                 <button
                   onClick={() => { setShowMenu(false); setShowDeleteConfirm(true); }}
                   className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-gray-50"
