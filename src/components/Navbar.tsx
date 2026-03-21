@@ -19,7 +19,7 @@ interface Props {
 export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount = 0 }: Props) {
   return (
     <nav className="sticky top-0 z-40 border-b border-gray-200 bg-white">
-      <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4">
+      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <Camera className="h-6 w-6 text-brand-500" />
@@ -30,7 +30,7 @@ export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount =
         <div className="flex items-center gap-4">
           <Link
             to="/explore"
-            className="text-gray-500 hover:text-brand-500"
+            className="hidden text-gray-500 hover:text-brand-500 sm:block"
             title="Explore"
           >
             <Search className="h-5 w-5" />
@@ -38,7 +38,7 @@ export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount =
 
           <Link
             to="/notifications"
-            className="relative text-gray-500 hover:text-brand-500"
+            className="hidden relative text-gray-500 hover:text-brand-500 sm:block"
             title="Notifications"
           >
             <Bell className="h-5 w-5" />
@@ -58,7 +58,7 @@ export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount =
 
           <button
             onClick={onCreatePost}
-            className="flex items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600"
+            className="hidden items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600 sm:flex"
           >
             <PlusSquare className="h-4 w-4" />
             Post
@@ -66,7 +66,7 @@ export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount =
 
           <Link
             to={`/profile/${username}`}
-            className="flex items-center gap-2 hover:opacity-80"
+            className="hidden items-center gap-2 hover:opacity-80 sm:flex"
           >
             {avatar ? (
               <img

@@ -23,6 +23,7 @@ import {
   fetchSuggestions,
   followUser,
 } from "../features/suggestion/suggestionSlice";
+import { BottomNav } from "../components/BottomNav";
 export function HomePage() {
   const dispatch = useAppDispatch();
   const { posts, isLoading } = useAppSelector((state) => state.posts);
@@ -73,7 +74,7 @@ export function HomePage() {
     setShowLikesModal(true);
   };
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-16 lg:pb-0">
       <Navbar
         username={user?.username ?? ""}
         avatar={user?.avatar}
@@ -147,6 +148,12 @@ export function HomePage() {
         onClose={() => setShowLikesModal(false)}
         users={likeUsers}
         isLoading={likeUsersLoading}
+      />
+      <BottomNav
+        username={user?.username ?? ""}
+        avatar={user?.avatar}
+        onCreatePost={() => setShowCreateModal(true)}
+        unreadCount={unreadCount}
       />
     </div>
   );
