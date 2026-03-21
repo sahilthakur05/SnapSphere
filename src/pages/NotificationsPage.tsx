@@ -4,8 +4,10 @@ import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { fetchNotifications, markAllRead } from '../features/notification/notificationSlice';
 import { logout } from '../features/auth/authSlice';
 import { Navbar } from '../components/Navbar';
+import { BottomNav } from '../components/BottomNav';
 import { Heart, MessageCircle, UserPlus, Loader2 } from 'lucide-react';
 import type { Notification } from '../features/notification/notificationSlice';
+import { timeAgo } from '../lib/timeAgo';
 
 function NotificationIcon({ type }: { type: Notification['type'] }) {
   switch (type) {
@@ -45,7 +47,7 @@ export function NotificationsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-16 lg:pb-0">
       <Navbar
         username={authUser?.username ?? ''}
         avatar={authUser?.avatar}
@@ -66,46 +68,57 @@ export function NotificationsPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {notifications.map((n) => (
-              <Link
-                key={n.id}
-                to={`/profile/${n.sender.username}`}
-                className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${
-                  n.read
-                    ? 'border-gray-100 bg-white'
-                    : 'border-brand-100 bg-brand-50'
-                } hover:bg-gray-50`}
-              >
-                {/* Sender avatar */}
-                {n.sender.avatar ? (
-                  <img src={n.sender.avatar} alt={n.sender.username} className="h-10 w-10 rounded-full object-cover" />
-                ) : (
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-600">
-                    {n.sender.username.charAt(0).toUpperCase()}
+            {notifications.map((n) => {
+              const href = n.type === 'follow'
+                ? `/profile/${n.sender.username}`
+                : n.postId
+                  ? `/post/${n.postId}`
+                  : `/profile/${n.sender.username}`;
+
+              return (
+                <Link
+                  key={n.id}
+                  to={href}
+                  className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${
+                    n.read
+                      ? 'border-gray-100 bg-white'
+                      : 'border-brand-100 bg-brand-50'
+                  } hover:bg-gray-50`}
+                >
+                  {/* Sender avatar */}
+                  {n.sender.avatar ? (
+                    <img src={n.sender.avatar} alt={n.sender.username} className="h-10 w-10 rounded-full object-cover" />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-600">
+                      {n.sender.username.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+
+                  {/* Content */}
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-800">
+                      <span className="font-semibold">{n.sender.username}</span>{' '}
+                      {notificationText(n)}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {timeAgo(n.createdAt)}
+                    </p>
                   </div>
-                )}
 
-                {/* Content */}
-                <div className="flex-1">
-                  <p className="text-sm text-gray-800">
-                    <span className="font-semibold">{n.sender.username}</span>{' '}
-                    {notificationText(n)}
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    {new Date(n.createdAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </p>
-                </div>
-
-                {/* Icon */}
-                <NotificationIcon type={n.type} />
-              </Link>
-            ))}
+                  {/* Icon */}
+                  <NotificationIcon type={n.type} />
+                </Link>
+              );
+            })}
           </div>
         )}
       </main>
+      <BottomNav
+        username={authUser?.username ?? ''}
+        avatar={authUser?.avatar}
+        onCreatePost={() => navigate('/')}
+        unreadCount={0}
+      />
     </div>
   );
 }

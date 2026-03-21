@@ -40,5 +40,6 @@
 - [x] Step 37 — Bio on Profile
 - [x] Step 38 — Report Post
 - [x] Step 39 — Desktop Post Detail Layout
+- [x] Step 40 — Improved Notifications Page
 
 > Tell me when ready and I'll add the next task!
