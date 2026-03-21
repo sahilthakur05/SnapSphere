@@ -115,9 +115,43 @@ Render the modal:
 />
 ```
 
-### 4. (Optional) Wire it in `PostDetailPage.tsx` too
+### 4. Wire it in `PostDetailWrapper.tsx`
 
-Same pattern — add state, pass `onShowLikes`, render `<LikesListModal>`.
+The UI is already updated — `PostDetailPage.tsx` now has `onShowLikes` prop and a clickable likes count. You just need to wire it in the wrapper.
+
+In `src/pages/PostDetailWrapper.tsx`:
+
+```ts
+import { useState } from "react";
+import { fetchPostLikes } from "../features/post/postSlice";
+import { LikesListModal } from "../components/LikesListModal";
+
+// Inside component:
+const { likeUsers, likeUsersLoading } = useAppSelector((state) => state.posts);
+const [showLikesModal, setShowLikesModal] = useState(false);
+
+const handleShowLikes = (postId: string) => {
+  dispatch(fetchPostLikes(postId));
+  setShowLikesModal(true);
+};
+```
+
+Pass it to `<PostDetailPage>`:
+
+```tsx
+<PostDetailPage ... onShowLikes={handleShowLikes} />
+```
+
+Render the modal after `<PostDetailPage>`:
+
+```tsx
+<LikesListModal
+  isOpen={showLikesModal}
+  onClose={() => setShowLikesModal(false)}
+  users={likeUsers}
+  isLoading={likeUsersLoading}
+/>
+```
 
 ---
 

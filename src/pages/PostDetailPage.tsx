@@ -23,6 +23,7 @@ interface Props {
   isSaved: boolean;
   onToggleSave: (postId: string) => void;
   onDelete?: (postId: string) => void;
+  onShowLikes?: (postId: string) => void;
 }
 
 export function PostDetailPage({
@@ -35,6 +36,7 @@ export function PostDetailPage({
     isSaved,
   onToggleSave,
   onDelete,
+  onShowLikes,
 }: Props) {
   const [commentText, setCommentText] = useState("");
   const [showMenu, setShowMenu] = useState(false);
@@ -152,6 +154,18 @@ export function PostDetailPage({
               />
             </button>
           </div>
+
+          {/* Likes count */}
+          {post.likes.length > 0 && (
+            <div className="px-4 pt-1">
+              <button
+                onClick={() => onShowLikes?.(post.id)}
+                className="text-sm font-semibold text-gray-900 hover:text-gray-600"
+              >
+                {post.likes.length} {post.likes.length === 1 ? "like" : "likes"}
+              </button>
+            </div>
+          )}
 
           {/* Caption */}
           {post.caption && (
