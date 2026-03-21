@@ -104,6 +104,21 @@ export const changePassword = createAsyncThunk(
   },
 );
 
+// Delete account
+export const deleteAccount = createAsyncThunk(
+  "auth/deleteAccount",
+  async (password: string, { rejectWithValue }) => {
+    try {
+      await api.delete("/auth/account", { data: { password } });
+      return true;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to delete account",
+      );
+    }
+  },
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -175,6 +190,14 @@ const authSlice = createSlice({
     );
     builder.addCase(loadUser.rejected, (state) => {
       state.isLoading = false;
+      state.token = null;
+      state.isAuthenticated = false;
+      localStorage.removeItem("token");
+    });
+
+    // Delete account
+    builder.addCase(deleteAccount.fulfilled, (state) => {
+      state.user = null;
       state.token = null;
       state.isAuthenticated = false;
       localStorage.removeItem("token");

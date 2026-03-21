@@ -43,5 +43,6 @@
 - [x] Step 40 — Improved Notifications Page
 - [x] Step 41 — Saved Posts Hover Stats & BottomNav on All Pages
 - [x] Step 42 — Improved 404 Page
+- [x] Step 43 — Delete Account
 
 > Tell me when ready and I'll add the next task!

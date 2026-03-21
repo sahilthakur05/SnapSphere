@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 
-import { logout } from "../features/auth/authSlice";
+import { logout, deleteAccount } from "../features/auth/authSlice";
 import { Navbar } from "../components/Navbar";
 import { BottomNav } from "../components/BottomNav";
 import { Grid3X3, Heart } from "lucide-react";
@@ -17,6 +17,7 @@ import {
 } from "../features/profile/profileSlice";
 import { FollowListModal } from "../components/FollowListModal";
 import { ChangePasswordModal } from "../components/ChangePasswordModal";
+import { DeleteAccountModal } from "../components/DeleteAccountModal";
 import { changePassword } from "../features/auth/authSlice";
 export function ProfilePage() {
   const { username } = useParams<{ username: string }>();
@@ -35,6 +36,9 @@ export function ProfilePage() {
   const [showPasswordModal,setShowPasswordModal]=useState(false)
 const [isChangingPassword, setIsChangingPassword] = useState(false);
 const [passwordError, setPasswordError] = useState<string | null>(null);
+const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null);
 
   useEffect(() => {
     if (username) dispatch(fetchProfile(username));
@@ -106,6 +110,18 @@ const [passwordError, setPasswordError] = useState<string | null>(null);
       setPasswordError(result.payload as string)
     }
   }
+
+  const handleDeleteAccount = async (password: string) => {
+    setDeleteAccountError(null);
+    setIsDeletingAccount(true);
+    const result = await dispatch(deleteAccount(password));
+    setIsDeletingAccount(false);
+    if (deleteAccount.fulfilled.match(result)) {
+      navigate("/login");
+    } else {
+      setDeleteAccountError(result.payload as string);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16 lg:pb-0">
@@ -235,6 +251,22 @@ const [passwordError, setPasswordError] = useState<string | null>(null);
             </div>
           )}
         </div>
+        {/* Danger zone */}
+        {isOwnProfile && (
+          <div className="mt-8 border-t border-gray-200 pt-6">
+            <h3 className="text-sm font-semibold text-red-600">Danger Zone</h3>
+            <p className="mt-1 text-xs text-gray-500">
+              Permanently delete your account and all associated data.
+            </p>
+            <button
+              onClick={() => setShowDeleteAccountModal(true)}
+              className="mt-3 rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+            >
+              Delete Account
+            </button>
+          </div>
+        )}
+
         <EditProfileModal
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
@@ -260,6 +292,13 @@ const [passwordError, setPasswordError] = useState<string | null>(null);
           title={followModalType ?? "Followers"}
           users={followList}
           isLoading={followListLoading}
+        />
+        <DeleteAccountModal
+          isOpen={showDeleteAccountModal}
+          onClose={() => { setShowDeleteAccountModal(false); setDeleteAccountError(null); }}
+          onConfirm={handleDeleteAccount}
+          isSubmitting={isDeletingAccount}
+          error={deleteAccountError}
         />
       </main>
       <BottomNav
