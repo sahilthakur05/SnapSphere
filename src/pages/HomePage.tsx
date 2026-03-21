@@ -24,9 +24,10 @@ import {
   followUser,
 } from "../features/suggestion/suggestionSlice";
 import { BottomNav } from "../components/BottomNav";
+import { LoadMoreTrigger } from "../components/LoadMoreTrigger";
 export function HomePage() {
   const dispatch = useAppDispatch();
-  const { posts, isLoading } = useAppSelector((state) => state.posts);
+  const { posts, isLoading, hasMore, loadingMore, currentPage } = useAppSelector((state) => state.posts);
   const { user } = useAppSelector((state) => state.auth);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { unreadCount } = useAppSelector((state) => state.notifications);
@@ -42,7 +43,7 @@ export function HomePage() {
   const [showLikesModal, setShowLikesModal] = useState(false);
   //fetch post on mount
   useEffect(() => {
-    dispatch(fetchPosts());
+    dispatch(fetchPosts(1));
     dispatch(fetchNotifications());
     dispatch(fetchSuggestions())
   }, [dispatch]);
@@ -67,6 +68,10 @@ export function HomePage() {
     await dispatch(editPost({ postId: editingPost.id, caption: editCaption }));
     setIsEditSubmitting(false);
     setEditingPost(null);
+  };
+
+  const handleLoadMore = () => {
+    dispatch(fetchPosts(currentPage + 1));
   };
 
   const handleShowLikes = (postId: string) => {
@@ -98,20 +103,27 @@ export function HomePage() {
               </p>
             </div>
           ) : (
-            posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                currentUserId={user?.id ?? ""}
-                onLike={handleLike}
-                onComment={handleComment}
-                isSaved={savedPostIds.includes(post.id)}
-                onToggleSave={(id) => dispatch(toggleBookmark(id))}
-                onDelete={(id) => dispatch(deletePost(id))}
-                onEdit={handleEdit}
-                onShowLikes={handleShowLikes}
+            <>
+              {posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  currentUserId={user?.id ?? ""}
+                  onLike={handleLike}
+                  onComment={handleComment}
+                  isSaved={savedPostIds.includes(post.id)}
+                  onToggleSave={(id) => dispatch(toggleBookmark(id))}
+                  onDelete={(id) => dispatch(deletePost(id))}
+                  onEdit={handleEdit}
+                  onShowLikes={handleShowLikes}
+                />
+              ))}
+              <LoadMoreTrigger
+                onTrigger={handleLoadMore}
+                isLoading={loadingMore}
+                hasMore={hasMore}
               />
-            ))
+            </>
           )}
         </main>
 

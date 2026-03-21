@@ -42,6 +42,9 @@ interface PostState {
     avatar: string;
   }[];
   likeUsersLoading: boolean;
+  currentPage: number;
+  hasMore: boolean;
+  loadingMore: boolean;
 }
 
 const initialState: PostState = {
@@ -52,15 +55,18 @@ const initialState: PostState = {
   singlePostLoading: false,
   likeUsers: [],
   likeUsersLoading: false,
+  currentPage: 1,
+  hasMore: true,
+  loadingMore: false,
 };
 
 // Fetch feed posts
 
 export const fetchPosts = createAsyncThunk(
   "posts/fetchPosts",
-  async (_, { rejectWithValue }) => {
+  async (page: number = 1, { rejectWithValue }) => {
     try {
-      const res = await api.get("/posts/feed");
+      const res = await api.get(`/posts/feed?page=${page}&limit=10`);
       return res.data;
     } catch (err: any) {
       return rejectWithValue(
@@ -251,20 +257,28 @@ const postSlice = createSlice({
   },
   extraReducers: (builder) => {
     // fetch posts
-    builder.addCase(fetchPosts.pending, (state) => {
-      state.isLoading = true;
+    builder.addCase(fetchPosts.pending, (state, action) => {
+      if (action.meta.arg === 1 || action.meta.arg === undefined) {
+        state.isLoading = true;
+      } else {
+        state.loadingMore = true;
+      }
       state.error = null;
     });
-    builder.addCase(
-      fetchPosts.fulfilled,
-      (state, action: PayloadAction<Post[]>) => {
-        state.isLoading = false;
-        state.posts = action.payload;
-      },
-    );
-    builder.addCase(fetchPosts.rejected, (state, action) => {
+   builder.addCase(fetchPosts.fulfilled, (state, action) => {
+     state.isLoading = false;
+     state.loadingMore = false;
+     if (action.meta.arg === 1 || action.meta.arg === undefined) {
+       state.posts = action.payload.posts;
+     } else {
+       state.posts.push(...action.payload.posts);
+     }
+     state.hasMore = action.payload.hasMore;
+     state.currentPage = action.meta.arg || 1;
+   });
+    builder.addCase(fetchPosts.rejected, (state) => {
       state.isLoading = false;
-      state.error = action.payload as string;
+      state.loadingMore = false;
     });
 
     //create post

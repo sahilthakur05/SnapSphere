@@ -25,36 +25,8 @@
 - [x] Step 22 — Delete Comment
 - [x] Step 23 — Suggested Users Sidebar
 - [x] Step 24 — Share Post (Copy Link)
-- [ ] Step 25 — Mobile Bottom Navigation Bar
+- [x] Step 25 — Mobile Bottom Navigation Bar
 - [x] Step 26 — Double Tap to Like (Heart Animation)
-
----
-
-## Step 25 — Mobile Bottom Navigation Bar
-
-**What's already done (UI):**
-- `src/components/BottomNav.tsx` — Instagram-style bottom navigation bar visible only on mobile (`lg:hidden`). Has 5 tabs: Home, Explore, Create Post (branded button), Notifications (with unread badge), and Profile (with avatar). Active tab is highlighted with brand color. Accepts props: `username`, `avatar`, `onCreatePost`, `unreadCount`.
-- `src/components/Navbar.tsx` — Updated to hide duplicate items (explore, notifications, create post, profile) on small screens with `sm:block`/`sm:flex`, keeping only logo, saved, and logout visible on mobile. Max-width widened to `max-w-5xl`.
-- `src/pages/HomePage.tsx` — Added `pb-16 lg:pb-0` so content isn't hidden behind the bottom nav.
-
-**Your tasks (Logic):**
-
-### 1. Render `<BottomNav>` in `src/pages/HomePage.tsx`
-
-```tsx
-import { BottomNav } from "../components/BottomNav";
-
-// Add right before the closing </div> of the page:
-<BottomNav
-  username={user?.username ?? ""}
-  avatar={user?.avatar}
-  onCreatePost={() => setShowCreateModal(true)}
-  unreadCount={unreadCount}
-/>
-```
-
-### 2. (Optional) Add `<BottomNav>` to other pages too
-
-If you want the bottom nav on all pages, you can move it into a shared layout wrapper or add it to each page (Profile, Explore, Notifications, etc.). Add `pb-16 lg:pb-0` to each page's root div.
+- [x] Step 27 — Infinite Scroll / Load More Posts
 
 > Tell me when ready and I'll add the next task!
