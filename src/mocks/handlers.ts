@@ -215,24 +215,22 @@ export const handlers = [
   // ── Followers/Following List ──
   http.get("*/api/v1/users/:username/followers", ({ params }) => {
     const user = mockUsers.find((u) => u.username === params.username);
-    if (!user) return HttpResponse.json([]);
-    return HttpResponse.json(
-      user.followers.map((uid) => {
-        const u = mockUsers.find((u) => u.id === uid);
-        return u ? { id: u.id, username: u.username, fullName: u.fullName, avatar: u.avatar } : null;
-      }).filter(Boolean)
-    );
+    if (!user) return HttpResponse.json({ users: [] });
+    const users = user.followers.map((uid) => {
+      const u = mockUsers.find((u) => u.id === uid);
+      return u ? { id: u.id, username: u.username, fullName: u.fullName, avatar: u.avatar } : null;
+    }).filter(Boolean);
+    return HttpResponse.json({ users });
   }),
 
   http.get("*/api/v1/users/:username/following", ({ params }) => {
     const user = mockUsers.find((u) => u.username === params.username);
-    if (!user) return HttpResponse.json([]);
-    return HttpResponse.json(
-      user.following.map((uid) => {
-        const u = mockUsers.find((u) => u.id === uid);
-        return u ? { id: u.id, username: u.username, fullName: u.fullName, avatar: u.avatar } : null;
-      }).filter(Boolean)
-    );
+    if (!user) return HttpResponse.json({ users: [] });
+    const users = user.following.map((uid) => {
+      const u = mockUsers.find((u) => u.id === uid);
+      return u ? { id: u.id, username: u.username, fullName: u.fullName, avatar: u.avatar } : null;
+    }).filter(Boolean);
+    return HttpResponse.json({ users });
   }),
 
   // ── Stories ──
