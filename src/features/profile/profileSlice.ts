@@ -10,6 +10,7 @@ interface ProfileUser {
   username: string;
   fullName: string;
   avatar: string;
+  bio: string;
   followers: string[];
   following: string[];
 }

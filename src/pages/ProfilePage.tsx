@@ -164,7 +164,10 @@ const [passwordError, setPasswordError] = useState<string | null>(null);
               )}
             </div>
 
-            <p className="mt-1 text-sm text-gray-600">{profile.fullName}</p>
+            <p className="mt-1 text-sm font-medium text-gray-800">{profile.fullName}</p>
+            {profile.bio && (
+              <p className="mt-1 text-sm text-gray-600 whitespace-pre-line">{profile.bio}</p>
+            )}
 
             {/* Stats */}
             <div className="mt-3 flex gap-6">
@@ -236,6 +239,7 @@ const [passwordError, setPasswordError] = useState<string | null>(null);
           onClose={() => setShowEditModal(false)}
           currentFullName={profile.fullName}
           currentAvatar={profile.avatar}
+          currentBio={profile.bio ?? ""}
           onSave={handleSaveProfile}
           isSaving={isSaving}
         />

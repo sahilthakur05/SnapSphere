@@ -6,13 +6,15 @@ interface Props {
   onClose: () => void;
   currentFullName: string;
   currentAvatar: string;
+  currentBio: string;
   onSave: (formData: FormData) => void;
   isSaving: boolean;
 }
 
-export function EditProfileModal({ isOpen, onClose, currentFullName, currentAvatar, onSave, isSaving }: Props) {
+export function EditProfileModal({ isOpen, onClose, currentFullName, currentAvatar, currentBio, onSave, isSaving }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [fullName, setFullName] = useState(currentFullName);
+  const [bio, setBio] = useState(currentBio);
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
 
@@ -27,6 +29,7 @@ export function EditProfileModal({ isOpen, onClose, currentFullName, currentAvat
     e.preventDefault();
     const formData = new FormData();
     formData.append('fullName', fullName);
+    formData.append('bio', bio);
     if (file) formData.append('avatar', file);
     onSave(formData);
   };
@@ -77,6 +80,20 @@ export function EditProfileModal({ isOpen, onClose, currentFullName, currentAvat
               onChange={(e) => setFullName(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
             />
+          </div>
+
+          {/* Bio */}
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Bio</label>
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Tell people about yourself…"
+              rows={3}
+              maxLength={150}
+              className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+            />
+            <p className="mt-1 text-right text-xs text-gray-400">{bio.length}/150</p>
           </div>
 
           {/* Submit */}
