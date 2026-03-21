@@ -48,5 +48,6 @@
 - [x] Step 45 — Toast Notification System
 - [x] Step 46 — Top Loading Progress Bar
 - [x] Step 47 — Clickable Hashtags & Mentions
+- [x] Step 48 — Caption Expand/Collapse
 
 > Tell me when ready and I'll add the next task!

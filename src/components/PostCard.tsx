@@ -43,6 +43,7 @@ const [showHeartAnim, setShowHeartAnim] = useState(false);
 const [showLightbox, setShowLightbox] = useState(false);
 const [showReportModal, setShowReportModal] = useState(false);
 const [isReporting, setIsReporting] = useState(false);
+const [captionExpanded, setCaptionExpanded] = useState(false);
 const lastTapRef = useRef(0);
 const isOwner = post.user.id === currentUserId;
 
@@ -224,7 +225,29 @@ const isOwner = post.user.id === currentUserId;
             >
               {post.user.username}
             </Link>{" "}
-            {parseText(post.caption)}
+            {post.caption.length > 150 && !captionExpanded ? (
+              <>
+                {parseText(post.caption.slice(0, 150))}
+                <button
+                  onClick={() => setCaptionExpanded(true)}
+                  className="ml-1 text-gray-400 hover:text-gray-600"
+                >
+                  ...more
+                </button>
+              </>
+            ) : (
+              <>
+                {parseText(post.caption)}
+                {post.caption.length > 150 && (
+                  <button
+                    onClick={() => setCaptionExpanded(false)}
+                    className="ml-1 text-gray-400 hover:text-gray-600"
+                  >
+                    less
+                  </button>
+                )}
+              </>
+            )}
           </p>
         </div>
       )}
