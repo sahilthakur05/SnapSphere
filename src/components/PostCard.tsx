@@ -12,6 +12,7 @@ interface Props {
   onToggleSave: (postId: string) => void;
   onDelete?: (postId: string) => void;
   onEdit?: (post: Post) => void;
+  onShowLikes?: (postId: string) => void;
 }
 
 export function PostCard({
@@ -23,6 +24,7 @@ export function PostCard({
   onToggleSave,
   onDelete,
   onEdit,
+  onShowLikes,
 }: Props) {
   const [commentText, setCommentText] = useState("");
   const isLiked = post.likes.includes(currentUserId);
@@ -122,6 +124,18 @@ const isOwner = post.user.id === currentUserId;
           />
         </button>
       </div>
+
+      {/* Likes count */}
+      {post.likes.length > 0 && (
+        <div className="px-4 pt-1">
+          <button
+            onClick={() => onShowLikes?.(post.id)}
+            className="text-sm font-semibold text-gray-900 hover:text-gray-600"
+          >
+            {post.likes.length} {post.likes.length === 1 ? "like" : "likes"}
+          </button>
+        </div>
+      )}
 
       {/* Caption */}
       {post.caption && (

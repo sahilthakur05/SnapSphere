@@ -5,6 +5,7 @@ import {
   addComment,
   deletePost,
   editPost,
+  fetchPostLikes,
   fetchPosts,
   toggleLike,
 } from "../features/post/postSlice";
@@ -16,6 +17,8 @@ import { PostCard } from "../components/PostCard";
 import { fetchNotifications } from "../features/notification/notificationSlice";
 import { toggleBookmark } from "../features/saved/savedSlice";
 import { EditPostModal } from "../components/EditPostModal";
+import { LikesListModal } from "../components/LikesListModal";
+
 export function HomePage() {
   const dispatch = useAppDispatch();
   const { posts, isLoading } = useAppSelector((state) => state.posts);
@@ -26,6 +29,10 @@ export function HomePage() {
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [editCaption, setEditCaption] = useState("");
   const [isEditSubmitting, setIsEditSubmitting] = useState(false);
+  const { likeUsers, likeUsersLoading } = useAppSelector(
+    (state) => state.posts,
+  );
+  const [showLikesModal, setShowLikesModal] = useState(false);
   //fetch post on mount
   useEffect(() => {
     dispatch(fetchPosts());
@@ -46,14 +53,18 @@ export function HomePage() {
     setEditCaption(post.caption);
   };
 
+  const handleSaveEdit = async () => {
+    if (!editingPost) return;
+    setIsEditSubmitting(true);
+    await dispatch(editPost({ postId: editingPost.id, caption: editCaption }));
+    setIsEditSubmitting(false);
+    setEditingPost(null);
+  };
 
-  const handleSaveEdit = async()=>{
-    if(!editingPost)return
-    setIsEditSubmitting(true)
-    await dispatch(editPost({postId:editingPost.id,caption:editCaption}))
-    setIsEditSubmitting(false)
-    setEditingPost(null)
-  }
+  const handleShowLikes = (postId: string) => {
+    dispatch(fetchPostLikes(postId));
+    setShowLikesModal(true);
+  };
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar
@@ -88,6 +99,7 @@ export function HomePage() {
               onToggleSave={(id) => dispatch(toggleBookmark(id))}
               onDelete={(id) => dispatch(deletePost(id))}
               onEdit={handleEdit}
+              onShowLikes={handleShowLikes}
             />
           ))
         )}
@@ -105,6 +117,12 @@ export function HomePage() {
         onCaptionChange={setEditCaption}
         onSave={handleSaveEdit}
         isSubmitting={isEditSubmitting}
+      />
+      <LikesListModal
+        isOpen={showLikesModal}
+        onClose={() => setShowLikesModal(false)}
+        users={likeUsers}
+        isLoading={likeUsersLoading}
       />
     </div>
   );

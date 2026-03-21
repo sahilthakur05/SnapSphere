@@ -35,6 +35,13 @@ interface PostState {
   error: string | null;
   singlePost: Post | null;
   singlePostLoading: boolean;
+  likeUsers: {
+    id: string;
+    username: string;
+    fullName: string;
+    avatar: string;
+  }[];
+  likeUsersLoading: boolean;
 }
 
 const initialState: PostState = {
@@ -43,6 +50,8 @@ const initialState: PostState = {
   error: null,
   singlePost: null,
   singlePostLoading: false,
+  likeUsers: [],
+  likeUsersLoading: false,
 };
 
 // Fetch feed posts
@@ -194,6 +203,22 @@ export const editPost = createAsyncThunk(
   },
 );
 
+//fetch post
+
+export const fetchPostLikes = createAsyncThunk(
+  "posts/fetchPostLikes",
+  async (postId: string, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/posts/${postId}/likes`);
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch likes",
+      );
+    }
+  },
+);
+
 const postSlice = createSlice({
   name: "posts",
   initialState,
@@ -315,6 +340,19 @@ const postSlice = createSlice({
         }
       },
     );
+
+    // fetch post likes
+    builder.addCase(fetchPostLikes.pending, (state) => {
+      state.likeUsersLoading = true;
+      state.likeUsers = [];
+    });
+    builder.addCase(fetchPostLikes.fulfilled, (state, action) => {
+      state.likeUsersLoading = false;
+      state.likeUsers = action.payload;
+    });
+    builder.addCase(fetchPostLikes.rejected, (state) => {
+      state.likeUsersLoading = false;
+    });
   },
 });
 

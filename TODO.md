@@ -20,104 +20,108 @@
 - [x] Step 17 — Post Detail Page
 - [x] Step 18 — Bookmark / Save Posts
 - [x] Step 19 — Delete Post
-- [ ] Step 20 — Edit Post
+- [x] Step 20 — Edit Post
+- [ ] Step 21 — Likes List Modal
 
 ---
 
-## Step 20 — Edit Post (Caption Only)
+## Step 21 — Likes List Modal (See Who Liked a Post)
 
 **What's already done (UI):**
-- `src/components/EditPostModal.tsx` — Pure UI modal that shows the post image (read-only) and an editable caption textarea. Accepts props: `isOpen`, `onClose`, `postImage`, `caption`, `onCaptionChange`, `onSave`, `isSubmitting`.
-- `src/components/PostCard.tsx` — Updated with an `onEdit?: (post: Post) => void` prop. The three-dot menu now shows an **Edit Post** button (with pencil icon) above the Delete button for post owners.
+- `src/components/LikesListModal.tsx` — Pure UI modal that displays a scrollable list of users who liked a post. Each user shows avatar, username, and full name — clicking navigates to their profile. Accepts props: `isOpen`, `onClose`, `users`, `isLoading`.
+- `src/components/PostCard.tsx` — Updated with `onShowLikes?: (postId: string) => void` prop. The likes count (e.g. "12 likes") is now a clickable button below the action icons.
 
 **Your tasks (Logic):**
 
-### 1. Add `editPost` thunk in `src/features/post/postSlice.ts`
+### 1. Add `fetchPostLikes` thunk in `src/features/post/postSlice.ts`
 
 ```ts
-export const editPost = createAsyncThunk(
-  "posts/editPost",
-  async ({ postId, caption }: { postId: string; caption: string }, { rejectWithValue }) => {
+export const fetchPostLikes = createAsyncThunk(
+  "posts/fetchPostLikes",
+  async (postId: string, { rejectWithValue }) => {
     try {
-      const res = await api.put(`/posts/${postId}`, { caption });
-      return res.data; // should return the updated Post
+      const res = await api.get(`/posts/${postId}/likes`);
+      return res.data; // should return array of { id, username, fullName, avatar }
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || "Failed to edit post");
+      return rejectWithValue(err.response?.data?.message || "Failed to fetch likes");
     }
   }
 );
 ```
 
-### 2. Add the `extraReducer` for `editPost` in the same file
+### 2. Add state & reducer in `postSlice.ts`
+
+Add to `PostState` interface:
 
 ```ts
-// Edit post
-builder.addCase(
-  editPost.fulfilled,
-  (state, action: PayloadAction<Post>) => {
-    const idx = state.posts.findIndex((p) => p.id === action.payload.id);
-    if (idx !== -1) state.posts[idx] = action.payload;
-    if (state.singlePost && state.singlePost.id === action.payload.id) {
-      state.singlePost = action.payload;
-    }
-  }
-);
+likeUsers: { id: string; username: string; fullName: string; avatar: string }[];
+likeUsersLoading: boolean;
+```
+
+Add to `initialState`:
+
+```ts
+likeUsers: [],
+likeUsersLoading: false,
+```
+
+Add `extraReducers`:
+
+```ts
+// Fetch post likes
+builder.addCase(fetchPostLikes.pending, (state) => {
+  state.likeUsersLoading = true;
+  state.likeUsers = [];
+});
+builder.addCase(fetchPostLikes.fulfilled, (state, action) => {
+  state.likeUsersLoading = false;
+  state.likeUsers = action.payload;
+});
+builder.addCase(fetchPostLikes.rejected, (state) => {
+  state.likeUsersLoading = false;
+});
 ```
 
 ### 3. Wire it up in `src/pages/HomePage.tsx`
 
-Add state and handler:
-
 ```ts
-import { EditPostModal } from "../components/EditPostModal";
-import { editPost } from "../features/post/postSlice";
+import { LikesListModal } from "../components/LikesListModal";
+import { fetchPostLikes } from "../features/post/postSlice";
 
-// Inside the component:
-const [editingPost, setEditingPost] = useState<Post | null>(null);
-const [editCaption, setEditCaption] = useState("");
-const [isEditSubmitting, setIsEditSubmitting] = useState(false);
+// Inside component:
+const { likeUsers, likeUsersLoading } = useAppSelector((state) => state.posts);
+const [showLikesModal, setShowLikesModal] = useState(false);
 
-const handleEdit = (post: Post) => {
-  setEditingPost(post);
-  setEditCaption(post.caption);
-};
-
-const handleSaveEdit = async () => {
-  if (!editingPost) return;
-  setIsEditSubmitting(true);
-  await dispatch(editPost({ postId: editingPost.id, caption: editCaption }));
-  setIsEditSubmitting(false);
-  setEditingPost(null);
+const handleShowLikes = (postId: string) => {
+  dispatch(fetchPostLikes(postId));
+  setShowLikesModal(true);
 };
 ```
 
-Pass the `onEdit` prop to each `<PostCard>`:
+Pass the prop to `<PostCard>`:
 
 ```tsx
-<PostCard ... onEdit={handleEdit} />
+<PostCard ... onShowLikes={handleShowLikes} />
 ```
 
-Render the modal at the bottom of the page:
+Render the modal:
 
 ```tsx
-<EditPostModal
-  isOpen={!!editingPost}
-  onClose={() => setEditingPost(null)}
-  postImage={editingPost?.image || ""}
-  caption={editCaption}
-  onCaptionChange={setEditCaption}
-  onSave={handleSaveEdit}
-  isSubmitting={isEditSubmitting}
+<LikesListModal
+  isOpen={showLikesModal}
+  onClose={() => setShowLikesModal(false)}
+  users={likeUsers}
+  isLoading={likeUsersLoading}
 />
 ```
 
 ### 4. (Optional) Wire it in `PostDetailPage.tsx` too
 
-Same pattern — add `editingPost` state, pass `onEdit` to the card/detail UI, and render `<EditPostModal>`.
+Same pattern — add state, pass `onShowLikes`, render `<LikesListModal>`.
 
 ---
 
 ### Backend endpoint needed:
-`PUT /posts/:postId` — accepts `{ caption }` in body, returns the updated post object.
+`GET /posts/:postId/likes` — returns an array of user objects `[{ id, username, fullName, avatar }]` who liked the post.
 
 > Tell me when ready and I'll add the next task!
