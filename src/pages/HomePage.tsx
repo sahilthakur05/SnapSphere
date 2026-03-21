@@ -101,10 +101,11 @@ export function HomePage() {
     }
   };
 
-  const handleAddStory = async (file: File) => {
+  const handleAddStory = async (file: File, caption: string) => {
     setIsAddingStory(true);
     const formData = new FormData();
     formData.append("image", file);
+    if (caption) formData.append("caption", caption);
     await dispatch(addStory(formData));
     setIsAddingStory(false);
     setShowAddStory(false);
@@ -227,6 +228,8 @@ export function HomePage() {
         storyGroups={storyGroups}
         initialGroupIndex={storyGroupIndex}
         onStoryViewed={(userId, storyId) => dispatch(markStoryViewed({ userId, storyId }))}
+        onLikeStory={() => showToast("Story liked!", "success")}
+        onReplyStory={(_, text) => showToast(`Reply sent: "${text}"`, "success")}
       />
       <AddStoryModal
         isOpen={showAddStory}

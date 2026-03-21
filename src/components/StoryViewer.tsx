@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Heart, Send } from "lucide-react";
 
 interface Story {
   id: string;
   image: string;
+  caption?: string;
   createdAt: string;
 }
 
@@ -20,6 +21,8 @@ interface Props {
   storyGroups: StoryGroup[];
   initialGroupIndex: number;
   onStoryViewed: (userId: string, storyId: string) => void;
+  onLikeStory?: (storyId: string) => void;
+  onReplyStory?: (storyId: string, text: string) => void;
 }
 
 export function StoryViewer({
@@ -28,10 +31,16 @@ export function StoryViewer({
   storyGroups,
   initialGroupIndex,
   onStoryViewed,
+  onLikeStory,
+  onReplyStory,
 }: Props) {
   const [groupIndex, setGroupIndex] = useState(initialGroupIndex);
   const [storyIndex, setStoryIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
+  const [showHeart, setShowHeart] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [isPaused, setIsPaused] = useState(false);
 
   const currentGroup = storyGroups[groupIndex];
   const currentStory = currentGroup?.stories[storyIndex];
@@ -41,10 +50,12 @@ export function StoryViewer({
     if (storyIndex < currentGroup.stories.length - 1) {
       setStoryIndex(storyIndex + 1);
       setProgress(0);
+      setIsLiked(false);
     } else if (groupIndex < storyGroups.length - 1) {
       setGroupIndex(groupIndex + 1);
       setStoryIndex(0);
       setProgress(0);
+      setIsLiked(false);
     } else {
       onClose();
     }
@@ -54,16 +65,31 @@ export function StoryViewer({
     if (storyIndex > 0) {
       setStoryIndex(storyIndex - 1);
       setProgress(0);
+      setIsLiked(false);
     } else if (groupIndex > 0) {
       setGroupIndex(groupIndex - 1);
       setStoryIndex(0);
       setProgress(0);
+      setIsLiked(false);
     }
+  };
+
+  const handleLike = () => {
+    setIsLiked(true);
+    setShowHeart(true);
+    onLikeStory?.(currentStory?.id ?? "");
+    setTimeout(() => setShowHeart(false), 800);
+  };
+
+  const handleReply = () => {
+    if (!replyText.trim() || !currentStory) return;
+    onReplyStory?.(currentStory.id, replyText.trim());
+    setReplyText("");
   };
 
   // Auto-advance timer
   useEffect(() => {
-    if (!isOpen || !currentStory) return;
+    if (!isOpen || !currentStory || isPaused) return;
 
     onStoryViewed(currentGroup.userId, currentStory.id);
 
@@ -78,7 +104,7 @@ export function StoryViewer({
     }, 100);
 
     return () => clearInterval(interval);
-  }, [isOpen, currentStory, currentGroup, goNext, onStoryViewed]);
+  }, [isOpen, currentStory, currentGroup, goNext, onStoryViewed, isPaused]);
 
   // Reset on open
   useEffect(() => {
@@ -86,13 +112,20 @@ export function StoryViewer({
       setGroupIndex(initialGroupIndex);
       setStoryIndex(0);
       setProgress(0);
+      setIsLiked(false);
+      setReplyText("");
     }
   }, [isOpen, initialGroupIndex]);
+
+  // Pause when typing reply
+  useEffect(() => {
+    setIsPaused(replyText.length > 0);
+  }, [replyText]);
 
   if (!isOpen || !currentGroup || !currentStory) return null;
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black">
+    <div className="fixed inset-0 z-70 flex items-center justify-center bg-black">
       {/* Close */}
       <button
         onClick={onClose}
@@ -167,7 +200,51 @@ export function StoryViewer({
           alt="Story"
           className="h-full w-full object-contain"
           onClick={goNext}
+          onDoubleClick={(e) => { e.stopPropagation(); handleLike(); }}
         />
+
+        {/* Caption overlay */}
+        {currentStory.caption && (
+          <div className="absolute bottom-20 left-0 right-0 px-6 text-center">
+            <p className="rounded-lg bg-black/40 px-4 py-2 text-sm text-white backdrop-blur-sm">
+              {currentStory.caption}
+            </p>
+          </div>
+        )}
+
+        {/* Heart animation */}
+        {showHeart && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <Heart className="h-24 w-24 animate-ping fill-red-500 text-red-500" />
+          </div>
+        )}
+
+        {/* Bottom bar: Like + Reply */}
+        <div className="absolute bottom-0 left-0 right-0 z-10 flex items-center gap-3 bg-linear-to-t from-black/60 to-transparent px-4 pb-4 pt-8">
+          <input
+            type="text"
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            placeholder="Reply to story..."
+            className="flex-1 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/60 backdrop-blur-sm"
+            onKeyDown={(e) => e.key === "Enter" && handleReply()}
+          />
+          {replyText.trim() ? (
+            <button
+              onClick={handleReply}
+              className="rounded-full bg-brand-500 p-2 text-white hover:bg-brand-600"
+            >
+              <Send className="h-5 w-5" />
+            </button>
+          ) : (
+            <button
+              onClick={handleLike}
+              className="rounded-full p-2 text-white hover:bg-white/10"
+            >
+              <Heart className={`h-6 w-6 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
