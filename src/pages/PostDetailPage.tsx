@@ -17,6 +17,7 @@ import {
 import type { Post } from "../features/post/postSlice";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { timeAgo } from "../lib/timeAgo";
+import { parseText } from "../lib/parseText";
 
 interface Props {
   post: Post | null;
@@ -237,7 +238,7 @@ export function PostDetailPage({
                 >
                   {post.user.username}
                 </Link>{" "}
-                {post.caption}
+                {parseText(post.caption)}
               </p>
             </div>
           )}
@@ -307,7 +308,7 @@ export function PostDetailPage({
                           >
                             {c.user.username}
                           </Link>{" "}
-                          {c.text}
+                          {parseText(c.text)}
                         </p>
                         <p className="text-xs text-gray-400">
                           {timeAgo(c.createdAt)}

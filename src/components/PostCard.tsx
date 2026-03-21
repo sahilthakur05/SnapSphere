@@ -6,6 +6,7 @@ import { ConfirmModal } from "./ConfirmModal";
 import { ImageLightbox } from "./ImageLightbox";
 import { ReportModal } from "./ReportModal";
 import { timeAgo } from "../lib/timeAgo";
+import { parseText } from "../lib/parseText";
 interface Props {
   post: Post;
   currentUserId: string;
@@ -223,7 +224,7 @@ const isOwner = post.user.id === currentUserId;
             >
               {post.user.username}
             </Link>{" "}
-            {post.caption}
+            {parseText(post.caption)}
           </p>
         </div>
       )}
@@ -247,7 +248,7 @@ const isOwner = post.user.id === currentUserId;
               >
                 {c.user.username}
               </Link>{" "}
-              {c.text}
+              {parseText(c.text)}
             </p>
           ))}
         </div>
