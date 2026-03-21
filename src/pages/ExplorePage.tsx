@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { searchUsers, fetchExplorePosts } from '../features/search/searchSlice';
+import { followUser } from '../features/suggestion/suggestionSlice';
 import { logout } from '../features/auth/authSlice';
 import { Navbar } from '../components/Navbar';
 import { Search, Loader2 } from 'lucide-react';
 import { ExploreGrid } from '../components/ExploreGrid';
+import { UserCard } from '../components/UserCard';
 
 export function ExplorePage() {
   const dispatch = useAppDispatch();
@@ -64,23 +66,12 @@ export function ExplorePage() {
               </div>
             ) : (
               results.map((user) => (
-                <Link
+                <UserCard
                   key={user.id}
-                  to={`/profile/${user.username}`}
-                  className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white px-4 py-3 hover:bg-gray-50"
-                >
-                  {user.avatar ? (
-                    <img src={user.avatar} alt={user.username} className="h-11 w-11 rounded-full object-cover" />
-                  ) : (
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-600">
-                      {user.username.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">{user.username}</p>
-                    <p className="text-xs text-gray-500">{user.fullName}</p>
-                  </div>
-                </Link>
+                  user={user}
+                  currentUserId={authUser?.id ?? ""}
+                  onFollow={(id) => dispatch(followUser(id))}
+                />
               ))
             )}
           </div>

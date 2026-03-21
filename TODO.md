@@ -33,6 +33,7 @@
 - [x] Step 30 — Image Lightbox Modal
 - [x] Step 31 — Profile Grid Hover Stats & Navigation
 - [x] Step 32 — Explore Page Discover Grid
+- [x] Step 34 — Follow Button on Search Results
 - [ ] Step 33 — Change Password
 
 ---
