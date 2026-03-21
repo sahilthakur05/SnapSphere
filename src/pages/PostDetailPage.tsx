@@ -10,6 +10,8 @@ import {
   MoreHorizontal,
   Trash2,
   X,
+  Link2,
+  Check,
 } from "lucide-react";
 import type { Post } from "../features/post/postSlice";
 import { ConfirmModal } from "../components/ConfirmModal";
@@ -44,6 +46,8 @@ export function PostDetailPage({
   const [commentText, setCommentText] = useState("");
   const [showMenu, setShowMenu] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleComment = () => {
     if (!commentText.trim() || !post) return;
@@ -141,7 +145,7 @@ export function PostDetailPage({
           <img src={post.image} alt="Post" className="w-full object-cover" />
 
           {/* Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 px-4 pt-2">
             <button
               onClick={() => onLike(post.id)}
               className="flex items-center gap-1.5"
@@ -151,6 +155,35 @@ export function PostDetailPage({
               />
             </button>
             <MessageCircle className="h-6 w-6 text-gray-600" />
+            <div className="relative">
+              <button onClick={() => setShowShareMenu(!showShareMenu)}>
+                <Send className="h-5 w-5 text-gray-600 hover:text-gray-900" />
+              </button>
+              {showShareMenu && (
+                <div className="absolute left-0 top-8 z-10 w-44 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+                      setCopied(true);
+                      setTimeout(() => { setCopied(false); setShowShareMenu(false); }, 1500);
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="h-4 w-4 text-green-500" />
+                        Link Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Link2 className="h-4 w-4" />
+                        Copy Link
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
             <button onClick={() => onToggleSave(post.id)} className="ml-auto">
               <Bookmark
                 className={`h-6 w-6 ${isSaved ? "fill-gray-900 text-gray-900" : "text-gray-600 hover:text-gray-900"}`}

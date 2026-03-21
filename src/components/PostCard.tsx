@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2, Pencil } from "lucide-react";
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2, Pencil, Link2, Check } from "lucide-react";
 import type { Post } from '../features/post/postSlice';
 import { ConfirmModal } from "./ConfirmModal";
 interface Props {
@@ -31,6 +31,8 @@ export function PostCard({
   const navigate = useNavigate();
 const [showMenu, setShowMenu] = useState(false);
 const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+const [showShareMenu, setShowShareMenu] = useState(false);
+const [copied, setCopied] = useState(false);
 const isOwner = post.user.id === currentUserId;
 
   const handleComment = () => {
@@ -108,7 +110,7 @@ const isOwner = post.user.id === currentUserId;
       />
 
       {/* Actions */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 px-4 pt-2">
         <button
           onClick={() => onLike(post.id)}
           className="flex items-center gap-1.5"
@@ -117,7 +119,38 @@ const isOwner = post.user.id === currentUserId;
             className={`h-6 w-6 ${isLiked ? "fill-red-500 text-red-500" : "text-gray-600 hover:text-red-500"}`}
           />
         </button>
-        <MessageCircle className="h-6 w-6 text-gray-600" />
+        <button onClick={() => navigate(`/post/${post.id}`)}>
+          <MessageCircle className="h-6 w-6 text-gray-600 hover:text-gray-900" />
+        </button>
+        <div className="relative">
+          <button onClick={() => setShowShareMenu(!showShareMenu)}>
+            <Send className="h-5 w-5 text-gray-600 hover:text-gray-900" />
+          </button>
+          {showShareMenu && (
+            <div className="absolute left-0 top-8 z-10 w-44 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+                  setCopied(true);
+                  setTimeout(() => { setCopied(false); setShowShareMenu(false); }, 1500);
+                }}
+                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-4 w-4 text-green-500" />
+                    Link Copied!
+                  </>
+                ) : (
+                  <>
+                    <Link2 className="h-4 w-4" />
+                    Copy Link
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
         <button onClick={() => onToggleSave(post.id)} className="ml-auto">
           <Bookmark
             className={`h-6 w-6 ${isSaved ? "fill-gray-900 text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
