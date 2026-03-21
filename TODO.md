@@ -51,6 +51,8 @@
 - [x] Step 48 — Caption Expand/Collapse
 - [x] Step 49 — Dynamic Page Titles
 - [x] Step 50 — Final Polish (Meta Tags, SEO)
+- [x] Step 51 — Stories (Add & View)
+- [x] Step 52 — Account Switcher
 
 ---
 

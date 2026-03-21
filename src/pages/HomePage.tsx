@@ -30,6 +30,10 @@ import { ScrollToTop } from "../components/ScrollToTop";
 import { Toast } from "../components/Toast";
 import { useToast } from "../hooks/useToast";
 import { usePageTitle } from "../hooks/usePageTitle";
+import { StoriesBar } from "../components/StoriesBar";
+import { StoryViewer } from "../components/StoryViewer";
+import { AddStoryModal } from "../components/AddStoryModal";
+import { fetchStories, addStory, markStoryViewed } from "../features/story/storySlice";
 export function HomePage() {
   usePageTitle("Feed");
   const dispatch = useAppDispatch();
@@ -48,11 +52,18 @@ export function HomePage() {
     useAppSelector((state) => state.suggestions);
   const [showLikesModal, setShowLikesModal] = useState(false);
   const { toast, showToast, hideToast } = useToast();
+  const { storyGroups, viewedStories } = useAppSelector((state) => state.stories);
+  const [showStoryViewer, setShowStoryViewer] = useState(false);
+  const [storyGroupIndex, setStoryGroupIndex] = useState(0);
+  const [showAddStory, setShowAddStory] = useState(false);
+  const [isAddingStory, setIsAddingStory] = useState(false);
+
   //fetch post on mount
   useEffect(() => {
     dispatch(fetchPosts(1));
     dispatch(fetchNotifications());
-    dispatch(fetchSuggestions())
+    dispatch(fetchSuggestions());
+    dispatch(fetchStories())
   }, [dispatch]);
   const handleLike = (postId: string) => {
     dispatch(toggleLike(postId));
@@ -82,6 +93,24 @@ export function HomePage() {
     dispatch(fetchPosts(currentPage + 1));
   };
 
+  const handleViewStory = (userId: string) => {
+    const idx = storyGroups.findIndex((g) => g.userId === userId);
+    if (idx !== -1) {
+      setStoryGroupIndex(idx);
+      setShowStoryViewer(true);
+    }
+  };
+
+  const handleAddStory = async (file: File) => {
+    setIsAddingStory(true);
+    const formData = new FormData();
+    formData.append("image", file);
+    await dispatch(addStory(formData));
+    setIsAddingStory(false);
+    setShowAddStory(false);
+    showToast("Story shared!", "success");
+  };
+
   const handleShowLikes = (postId: string) => {
     dispatch(fetchPostLikes(postId));
     setShowLikesModal(true);
@@ -99,6 +128,20 @@ export function HomePage() {
       <div className="mx-auto flex max-w-5xl gap-8 px-4 py-6">
         {/* Feed */}
         <main className="flex-1 max-w-2xl space-y-6">
+          {/* Stories */}
+          <StoriesBar
+            currentUser={{ username: user?.username ?? "", avatar: user?.avatar }}
+            stories={storyGroups.map((g) => ({
+              id: g.userId,
+              username: g.username,
+              avatar: g.avatar,
+              hasStory: g.stories.length > 0,
+              isViewed: viewedStories[g.userId]?.length === g.stories.length,
+            }))}
+            onAddStory={() => setShowAddStory(true)}
+            onViewStory={handleViewStory}
+          />
+
           {isLoading ? (
             <div className="space-y-6">
               <PostCardSkeleton />
@@ -177,6 +220,19 @@ export function HomePage() {
         avatar={user?.avatar}
         onCreatePost={() => setShowCreateModal(true)}
         unreadCount={unreadCount}
+      />
+      <StoryViewer
+        isOpen={showStoryViewer}
+        onClose={() => setShowStoryViewer(false)}
+        storyGroups={storyGroups}
+        initialGroupIndex={storyGroupIndex}
+        onStoryViewed={(userId, storyId) => dispatch(markStoryViewed({ userId, storyId }))}
+      />
+      <AddStoryModal
+        isOpen={showAddStory}
+        onClose={() => setShowAddStory(false)}
+        onSubmit={handleAddStory}
+        isSubmitting={isAddingStory}
       />
       <ScrollToTop />
       <Toast

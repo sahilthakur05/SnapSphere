@@ -108,6 +108,37 @@ export const mockPosts = [
   },
 ];
 
+// ── Mock Stories ──
+export const mockStoryGroups = [
+  {
+    userId: "u2",
+    username: "priya",
+    avatar: "https://i.pravatar.cc/150?u=priya",
+    stories: [
+      { id: "s1", image: "https://picsum.photos/seed/story1/400/700", createdAt: new Date(Date.now() - 3600000).toISOString() },
+      { id: "s2", image: "https://picsum.photos/seed/story2/400/700", createdAt: new Date(Date.now() - 1800000).toISOString() },
+    ],
+  },
+  {
+    userId: "u3",
+    username: "arjun",
+    avatar: "https://i.pravatar.cc/150?u=arjun",
+    stories: [
+      { id: "s3", image: "https://picsum.photos/seed/story3/400/700", createdAt: new Date(Date.now() - 7200000).toISOString() },
+    ],
+  },
+  {
+    userId: "u4",
+    username: "neha",
+    avatar: "https://i.pravatar.cc/150?u=neha",
+    stories: [
+      { id: "s4", image: "https://picsum.photos/seed/story4/400/700", createdAt: new Date(Date.now() - 5400000).toISOString() },
+      { id: "s5", image: "https://picsum.photos/seed/story5/400/700", createdAt: new Date(Date.now() - 3000000).toISOString() },
+      { id: "s6", image: "https://picsum.photos/seed/story6/400/700", createdAt: new Date(Date.now() - 900000).toISOString() },
+    ],
+  },
+];
+
 // ── Mock Notifications ──
 export const mockNotifications = [
   {

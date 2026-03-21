@@ -1,5 +1,5 @@
 import { http, HttpResponse } from "msw";
-import { mockUsers, mockPosts, mockNotifications } from "./data";
+import { mockUsers, mockPosts, mockNotifications, mockStoryGroups } from "./data";
 
 // Current logged-in user (u1 = sahil)
 const CURRENT_USER = mockUsers[0];
@@ -233,6 +233,23 @@ export const handlers = [
         return u ? { id: u.id, username: u.username, fullName: u.fullName, avatar: u.avatar } : null;
       }).filter(Boolean)
     );
+  }),
+
+  // ── Stories ──
+  http.get("*/api/v1/stories", () => {
+    return HttpResponse.json(mockStoryGroups);
+  }),
+
+  http.post("*/api/v1/stories", () => {
+    const newStory = {
+      userId: CURRENT_USER.id,
+      username: CURRENT_USER.username,
+      avatar: CURRENT_USER.avatar,
+      stories: [
+        { id: `s${Date.now()}`, image: `https://picsum.photos/seed/${Date.now()}/400/700`, createdAt: new Date().toISOString() },
+      ],
+    };
+    return HttpResponse.json(newStory);
   }),
 
   // ── Notifications ──

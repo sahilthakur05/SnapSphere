@@ -4,9 +4,15 @@ import {
   PlusSquare,
   Search,
   Bell,
-  LogOut,
   Bookmark,
 } from "lucide-react";
+import { AccountSwitcher } from "./AccountSwitcher";
+
+interface SavedAccount {
+  id: string;
+  username: string;
+  avatar: string;
+}
 
 interface Props {
   username: string;
@@ -14,9 +20,12 @@ interface Props {
   onCreatePost: () => void;
   onLogout: () => void;
   unreadCount?: number;
+  savedAccounts?: SavedAccount[];
+  onSwitchAccount?: (accountId: string) => void;
+  onAddAccount?: () => void;
 }
 
-export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount = 0 }: Props) {
+export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount = 0, savedAccounts = [], onSwitchAccount, onAddAccount }: Props) {
   return (
     <nav className="sticky top-0 z-40 border-b border-gray-200 bg-white">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
@@ -66,7 +75,7 @@ export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount =
 
           <Link
             to={`/profile/${username}`}
-            className="hidden items-center gap-2 hover:opacity-80 sm:flex"
+            className="hidden items-center hover:opacity-80 sm:flex"
           >
             {avatar ? (
               <img
@@ -79,18 +88,17 @@ export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount =
                 {username.charAt(0).toUpperCase()}
               </div>
             )}
-            <span className="text-sm font-medium text-gray-700">
-              {username}
-            </span>
           </Link>
 
-          <button
-            onClick={onLogout}
-            className="text-gray-400 hover:text-red-500"
-            title="Logout"
-          >
-            <LogOut className="h-5 w-5" />
-          </button>
+          <div className="hidden sm:block">
+            <AccountSwitcher
+              currentAccount={{ id: "current", username, avatar: avatar || "" }}
+              savedAccounts={savedAccounts}
+              onSwitch={(id) => onSwitchAccount?.(id)}
+              onAddAccount={() => onAddAccount?.() ?? window.location.assign("/login")}
+              onLogout={onLogout}
+            />
+          </div>
         </div>
       </div>
     </nav>

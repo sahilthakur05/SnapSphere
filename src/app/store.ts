@@ -6,6 +6,8 @@ import searchReducer from "../features/search/searchSlice";
 import notificationReducer from "../features/notification/notificationSlice";
 import savedReducer from "../features/saved/savedSlice";
 import suggestionReducer from "../features/suggestion/suggestionSlice";
+import storyReducer from "../features/story/storySlice";
+
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -15,6 +17,7 @@ export const store = configureStore({
     notifications: notificationReducer,
     saved: savedReducer,
     suggestions: suggestionReducer,
+    stories: storyReducer,
   },
 });
 
