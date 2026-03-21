@@ -36,5 +36,6 @@
 - [x] Step 34 — Follow Button on Search Results
 - [x] Step 33 — Change Password
 - [x] Step 35 — Edit Comment
+- [x] Step 36 — Scroll to Top Button
 
 > Tell me when ready and I'll add the next task!

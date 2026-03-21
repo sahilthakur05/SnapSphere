@@ -25,6 +25,7 @@ import {
 } from "../features/suggestion/suggestionSlice";
 import { BottomNav } from "../components/BottomNav";
 import { LoadMoreTrigger } from "../components/LoadMoreTrigger";
+import { ScrollToTop } from "../components/ScrollToTop";
 export function HomePage() {
   const dispatch = useAppDispatch();
   const { posts, isLoading, hasMore, loadingMore, currentPage } = useAppSelector((state) => state.posts);
@@ -169,6 +170,7 @@ export function HomePage() {
         onCreatePost={() => setShowCreateModal(true)}
         unreadCount={unreadCount}
       />
+      <ScrollToTop />
     </div>
   );
 }
