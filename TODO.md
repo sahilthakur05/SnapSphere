@@ -46,5 +46,6 @@
 - [x] Step 43 — Delete Account
 - [x] Step 44 — Forgot Password
 - [x] Step 45 — Toast Notification System
+- [x] Step 46 — Top Loading Progress Bar
 
 > Tell me when ready and I'll add the next task!
