@@ -12,6 +12,7 @@ import {
   X,
   Link2,
   Check,
+  Pencil,
 } from "lucide-react";
 import type { Post } from "../features/post/postSlice";
 import { ConfirmModal } from "../components/ConfirmModal";
@@ -29,6 +30,7 @@ interface Props {
   onDelete?: (postId: string) => void;
   onShowLikes?: (postId: string) => void;
   onDeleteComment?: (postId: string, commentId: string) => void;
+  onEditComment?: (postId: string, commentId: string, text: string) => void;
 }
 
 export function PostDetailPage({
@@ -43,8 +45,11 @@ export function PostDetailPage({
   onDelete,
   onShowLikes,
   onDeleteComment,
+  onEditComment,
 }: Props) {
   const [commentText, setCommentText] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentText, setEditCommentText] = useState("");
   const [showMenu, setShowMenu] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
@@ -257,27 +262,81 @@ export function PostDetailPage({
                     )}
                   </Link>
                   <div className="flex-1">
-                    <p className="text-sm text-gray-800">
-                      <Link
-                        to={`/profile/${c.user.username}`}
-                        className="font-semibold hover:underline"
-                      >
-                        {c.user.username}
-                      </Link>{" "}
-                      {c.text}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      {timeAgo(c.createdAt)}
-                    </p>
+                    {editingCommentId === c.id ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={editCommentText}
+                          onChange={(e) => setEditCommentText(e.target.value)}
+                          className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm outline-none focus:border-brand-500"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && editCommentText.trim()) {
+                              onEditComment?.(post.id, c.id, editCommentText.trim());
+                              setEditingCommentId(null);
+                            }
+                            if (e.key === "Escape") setEditingCommentId(null);
+                          }}
+                          autoFocus
+                        />
+                        <button
+                          onClick={() => {
+                            if (editCommentText.trim()) {
+                              onEditComment?.(post.id, c.id, editCommentText.trim());
+                              setEditingCommentId(null);
+                            }
+                          }}
+                          className="text-brand-500 hover:text-brand-700"
+                        >
+                          <Check className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => setEditingCommentId(null)}
+                          className="text-gray-400 hover:text-gray-600"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-sm text-gray-800">
+                          <Link
+                            to={`/profile/${c.user.username}`}
+                            className="font-semibold hover:underline"
+                          >
+                            {c.user.username}
+                          </Link>{" "}
+                          {c.text}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {timeAgo(c.createdAt)}
+                        </p>
+                      </>
+                    )}
                   </div>
-                  {c.user.id === currentUserId && onDeleteComment && (
-                    <button
-                      onClick={() => onDeleteComment(post.id, c.id)}
-                      className="shrink-0 self-center text-gray-300 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-500"
-                      title="Delete comment"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
+                  {c.user.id === currentUserId && editingCommentId !== c.id && (
+                    <div className="flex shrink-0 gap-1 self-center opacity-0 transition-opacity group-hover:opacity-100">
+                      {onEditComment && (
+                        <button
+                          onClick={() => {
+                            setEditingCommentId(c.id);
+                            setEditCommentText(c.text);
+                          }}
+                          className="text-gray-300 hover:text-brand-500"
+                          title="Edit comment"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                      {onDeleteComment && (
+                        <button
+                          onClick={() => onDeleteComment(post.id, c.id)}
+                          className="text-gray-300 hover:text-red-500"
+                          title="Delete comment"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               ))}

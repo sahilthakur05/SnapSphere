@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { toggleBookmark } from "../features/saved/savedSlice";
-import { deleteComment } from "../features/post/postSlice";
+import { deleteComment, editComment } from "../features/post/postSlice";
 import {
   fetchPostById,
   toggleLikeSingle,
@@ -57,6 +57,9 @@ export function PostDetailWrapper() {
         onShowLikes={handleShowLikes}
         onDeleteComment={(postId, commentId) =>
           dispatch(deleteComment({ postId, commentId }))
+        }
+        onEditComment={(postId, commentId, text) =>
+          dispatch(editComment({ postId, commentId, text }))
         }
       />
       <LikesListModal

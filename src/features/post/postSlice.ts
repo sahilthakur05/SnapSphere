@@ -244,6 +244,24 @@ export const deleteComment = createAsyncThunk(
   },
 );
 
+// Edit a comment
+export const editComment = createAsyncThunk(
+  "posts/editComment",
+  async (
+    { postId, commentId, text }: { postId: string; commentId: string; text: string },
+    { rejectWithValue },
+  ) => {
+    try {
+      const res = await api.put(`/posts/${postId}/comment/${commentId}`, { text });
+      return { postId, commentId, text: res.data.text };
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to edit comment",
+      );
+    }
+  },
+);
+
 const postSlice = createSlice({
   name: "posts",
   initialState,
@@ -402,6 +420,23 @@ const postSlice = createSlice({
           state.singlePost.comments = state.singlePost.comments.filter(
             (c) => c.id !== commentId,
           );
+        }
+      },
+    );
+
+    // edit comment
+    builder.addCase(
+      editComment.fulfilled,
+      (state, action: PayloadAction<{ postId: string; commentId: string; text: string }>) => {
+        const { postId, commentId, text } = action.payload;
+        const post = state.posts.find((p) => p.id === postId);
+        if (post) {
+          const comment = post.comments.find((c) => c.id === commentId);
+          if (comment) comment.text = text;
+        }
+        if (state.singlePost && state.singlePost.id === postId) {
+          const comment = state.singlePost.comments.find((c) => c.id === commentId);
+          if (comment) comment.text = text;
         }
       },
     );
