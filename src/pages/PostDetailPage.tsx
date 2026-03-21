@@ -108,10 +108,22 @@ export function PostDetailPage({
         <h1 className="text-lg font-semibold text-gray-900">Post</h1>
       </div>
 
-      <div className="mx-auto max-w-xl py-4 px-4">
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+      <div className="mx-auto max-w-5xl py-4 px-4">
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden lg:flex lg:max-h-[85vh]">
+          {/* Image with double-tap to like */}
+          <div className="relative lg:w-1/2 lg:shrink-0" onClick={handleDoubleTap}>
+            <img src={post.image} alt="Post" className="w-full object-cover lg:h-full" />
+            {showHeartAnim && (
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <Heart className="h-20 w-20 animate-ping fill-white text-white drop-shadow-lg" />
+              </div>
+            )}
+          </div>
+
+          {/* Right side: header + actions + comments */}
+          <div className="flex flex-col lg:w-1/2 lg:overflow-y-auto">
           {/* Post header */}
-          <div className="flex items-center gap-3 px-4 py-3">
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
             <Link to={`/profile/${post.user.username}`}>
               {post.user.avatar ? (
                 <img
@@ -152,16 +164,6 @@ export function PostDetailPage({
                     </button>
                   </div>
                 )}
-              </div>
-            )}
-          </div>
-
-          {/* Image with double-tap to like */}
-          <div className="relative" onClick={handleDoubleTap}>
-            <img src={post.image} alt="Post" className="w-full object-cover" />
-            {showHeartAnim && (
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                <Heart className="h-20 w-20 animate-ping fill-white text-white drop-shadow-lg" />
               </div>
             )}
           </div>
@@ -360,6 +362,7 @@ export function PostDetailPage({
             >
               <Send className="h-4 w-4" />
             </button>
+          </div>
           </div>
         </div>
       </div>
