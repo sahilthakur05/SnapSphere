@@ -32,5 +32,6 @@
 - [x] Step 29 — Relative Time Formatting
 - [x] Step 30 — Image Lightbox Modal
 - [x] Step 31 — Profile Grid Hover Stats & Navigation
+- [x] Step 32 — Explore Page Discover Grid
 
 > Tell me when ready and I'll add the next task!
