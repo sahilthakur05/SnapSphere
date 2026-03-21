@@ -4,7 +4,8 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 
 import { logout } from "../features/auth/authSlice";
 import { Navbar } from "../components/Navbar";
-import { Grid3X3, Loader2 } from "lucide-react";
+import { Grid3X3 } from "lucide-react";
+import { ProfileSkeleton } from "../components/ProfileSkeleton";
 import { EditProfileModal } from "../components/EditProfileModal";
 import {
   clearFollowList,
@@ -63,9 +64,7 @@ export function ProfilePage() {
           onCreatePost={() => navigate("/")}
           onLogout={handleLogout}
         />
-        <div className="flex justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-500" />
-        </div>
+        <ProfileSkeleton />
       </div>
     );
   }

@@ -12,7 +12,7 @@ import {
 import type { Post } from "../features/post/postSlice";
 import { logout } from "../features/auth/authSlice";
 import { Navbar } from "../components/Navbar";
-import { Loader2 } from "lucide-react";
+import { PostCardSkeleton } from "../components/PostCardSkeleton";
 import { PostCard } from "../components/PostCard";
 import { fetchNotifications } from "../features/notification/notificationSlice";
 import { toggleBookmark } from "../features/saved/savedSlice";
@@ -92,8 +92,10 @@ export function HomePage() {
         {/* Feed */}
         <main className="flex-1 max-w-2xl space-y-6">
           {isLoading ? (
-            <div className="flex justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-brand-500" />
+            <div className="space-y-6">
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+              <PostCardSkeleton />
             </div>
           ) : posts.length === 0 ? (
             <div className="py-20 text-center text-gray-400">

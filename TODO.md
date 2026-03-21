@@ -28,5 +28,6 @@
 - [x] Step 25 — Mobile Bottom Navigation Bar
 - [x] Step 26 — Double Tap to Like (Heart Animation)
 - [x] Step 27 — Infinite Scroll / Load More Posts
+- [x] Step 28 — Skeleton Loading Screens
 
 > Tell me when ready and I'll add the next task!
