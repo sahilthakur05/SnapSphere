@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type { Post } from "../features/post/postSlice";
 import { ConfirmModal } from "../components/ConfirmModal";
+import { timeAgo } from "../lib/timeAgo";
 
 interface Props {
   post: Post | null;
@@ -127,11 +128,7 @@ export function PostDetailPage({
                 {post.user.username}
               </Link>
               <p className="text-xs text-gray-400">
-                {new Date(post.createdAt).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
+                {timeAgo(post.createdAt)}
               </p>
             </div>
             {post.user.id === currentUserId && onDelete && (
@@ -270,10 +267,7 @@ export function PostDetailPage({
                       {c.text}
                     </p>
                     <p className="text-xs text-gray-400">
-                      {new Date(c.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      })}
+                      {timeAgo(c.createdAt)}
                     </p>
                   </div>
                   {c.user.id === currentUserId && onDeleteComment && (

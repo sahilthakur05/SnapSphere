@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2, Pencil, Link2, Check } from "lucide-react";
 import type { Post } from '../features/post/postSlice';
 import { ConfirmModal } from "./ConfirmModal";
+import { timeAgo } from "../lib/timeAgo";
 interface Props {
   post: Post;
   currentUserId: string;
@@ -78,10 +79,7 @@ const isOwner = post.user.id === currentUserId;
             {post.user.username}
           </Link>
           <p className="text-xs text-gray-400">
-            {new Date(post.createdAt).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-            })}
+            {timeAgo(post.createdAt)}
           </p>
         </div>
         {isOwner && (onDelete || onEdit) && (
