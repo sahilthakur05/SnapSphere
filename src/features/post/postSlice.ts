@@ -219,6 +219,25 @@ export const fetchPostLikes = createAsyncThunk(
   },
 );
 
+// delete commment
+
+export const deleteComment = createAsyncThunk(
+  "posts/deleteComment",
+  async (
+    { postId, commentId }: { postId: string; commentId: string },
+    { rejectWithValue },
+  ) => {
+    try {
+      await api.delete(`/posts/${postId}/comment/${commentId}`);
+      return { postId, commentId };
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to delete comment",
+      );
+    }
+  },
+);
+
 const postSlice = createSlice({
   name: "posts",
   initialState,
@@ -353,6 +372,25 @@ const postSlice = createSlice({
     builder.addCase(fetchPostLikes.rejected, (state) => {
       state.likeUsersLoading = false;
     });
+
+    // delete comment
+    builder.addCase(
+      deleteComment.fulfilled,
+      (state, action: PayloadAction<{ postId: string; commentId: string }>) => {
+        const { postId, commentId } = action.payload;
+        //update feed Posts
+        const post = state.posts.find((p) => p.id === postId);
+        if (post) {
+          post.comments = post.comments.filter((c) => c.id !== commentId);
+        }
+        // update single post
+        if (state.singlePost && state.singlePost.id === postId) {
+          state.singlePost.comments = state.singlePost.comments.filter(
+            (c) => c.id !== commentId,
+          );
+        }
+      },
+    );
   },
 });
 

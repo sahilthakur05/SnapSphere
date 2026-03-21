@@ -9,6 +9,7 @@ import {
   Bookmark,
   MoreHorizontal,
   Trash2,
+  X,
 } from "lucide-react";
 import type { Post } from "../features/post/postSlice";
 import { ConfirmModal } from "../components/ConfirmModal";
@@ -24,6 +25,7 @@ interface Props {
   onToggleSave: (postId: string) => void;
   onDelete?: (postId: string) => void;
   onShowLikes?: (postId: string) => void;
+  onDeleteComment?: (postId: string, commentId: string) => void;
 }
 
 export function PostDetailPage({
@@ -37,6 +39,7 @@ export function PostDetailPage({
   onToggleSave,
   onDelete,
   onShowLikes,
+  onDeleteComment,
 }: Props) {
   const [commentText, setCommentText] = useState("");
   const [showMenu, setShowMenu] = useState(false);
@@ -189,7 +192,7 @@ export function PostDetailPage({
                 Comments ({post.comments.length})
               </p>
               {post.comments.map((c) => (
-                <div key={c.id} className="flex gap-2">
+                <div key={c.id} className="group flex gap-2">
                   <Link to={`/profile/${c.user.username}`} className="shrink-0">
                     {c.user.avatar ? (
                       <img
@@ -203,7 +206,7 @@ export function PostDetailPage({
                       </div>
                     )}
                   </Link>
-                  <div>
+                  <div className="flex-1">
                     <p className="text-sm text-gray-800">
                       <Link
                         to={`/profile/${c.user.username}`}
@@ -220,6 +223,15 @@ export function PostDetailPage({
                       })}
                     </p>
                   </div>
+                  {c.user.id === currentUserId && onDeleteComment && (
+                    <button
+                      onClick={() => onDeleteComment(post.id, c.id)}
+                      className="shrink-0 self-center text-gray-300 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-500"
+                      title="Delete comment"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

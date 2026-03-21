@@ -21,141 +21,67 @@
 - [x] Step 18 — Bookmark / Save Posts
 - [x] Step 19 — Delete Post
 - [x] Step 20 — Edit Post
-- [ ] Step 21 — Likes List Modal
+- [x] Step 21 — Likes List Modal
+- [ ] Step 22 — Delete Comment
 
 ---
 
-## Step 21 — Likes List Modal (See Who Liked a Post)
+## Step 22 — Delete Comment
 
 **What's already done (UI):**
-- `src/components/LikesListModal.tsx` — Pure UI modal that displays a scrollable list of users who liked a post. Each user shows avatar, username, and full name — clicking navigates to their profile. Accepts props: `isOpen`, `onClose`, `users`, `isLoading`.
-- `src/components/PostCard.tsx` — Updated with `onShowLikes?: (postId: string) => void` prop. The likes count (e.g. "12 likes") is now a clickable button below the action icons.
+- `src/pages/PostDetailPage.tsx` — Updated with `onDeleteComment?: (postId: string, commentId: string) => void` prop. Each comment now shows a small **X** button on hover if the comment belongs to the current user.
 
 **Your tasks (Logic):**
 
-### 1. Add `fetchPostLikes` thunk in `src/features/post/postSlice.ts`
+### 1. Add `deleteComment` thunk in `src/features/post/postSlice.ts`
 
 ```ts
-export const fetchPostLikes = createAsyncThunk(
-  "posts/fetchPostLikes",
-  async (postId: string, { rejectWithValue }) => {
+export const deleteComment = createAsyncThunk(
+  "posts/deleteComment",
+  async ({ postId, commentId }: { postId: string; commentId: string }, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/posts/${postId}/likes`);
-      return res.data; // should return array of { id, username, fullName, avatar }
+      await api.delete(`/posts/${postId}/comment/${commentId}`);
+      return { postId, commentId };
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch likes");
+      return rejectWithValue(err.response?.data?.message || "Failed to delete comment");
     }
   }
 );
 ```
 
-### 2. Add state & reducer in `postSlice.ts`
-
-Add to `PostState` interface:
+### 2. Add the `extraReducer` in `postSlice.ts`
 
 ```ts
-likeUsers: { id: string; username: string; fullName: string; avatar: string }[];
-likeUsersLoading: boolean;
+// Delete comment
+builder.addCase(
+  deleteComment.fulfilled,
+  (state, action: PayloadAction<{ postId: string; commentId: string }>) => {
+    const { postId, commentId } = action.payload;
+    // Update feed posts
+    const post = state.posts.find((p) => p.id === postId);
+    if (post) {
+      post.comments = post.comments.filter((c) => c.id !== commentId);
+    }
+    // Update single post
+    if (state.singlePost && state.singlePost.id === postId) {
+      state.singlePost.comments = state.singlePost.comments.filter((c) => c.id !== commentId);
+    }
+  }
+);
 ```
 
-Add to `initialState`:
+### 3. Wire it up in `src/pages/PostDetailWrapper.tsx`
 
 ```ts
-likeUsers: [],
-likeUsersLoading: false,
-```
+import { deleteComment } from "../features/post/postSlice";
 
-Add `extraReducers`:
-
-```ts
-// Fetch post likes
-builder.addCase(fetchPostLikes.pending, (state) => {
-  state.likeUsersLoading = true;
-  state.likeUsers = [];
-});
-builder.addCase(fetchPostLikes.fulfilled, (state, action) => {
-  state.likeUsersLoading = false;
-  state.likeUsers = action.payload;
-});
-builder.addCase(fetchPostLikes.rejected, (state) => {
-  state.likeUsersLoading = false;
-});
-```
-
-### 3. Wire it up in `src/pages/HomePage.tsx`
-
-```ts
-import { LikesListModal } from "../components/LikesListModal";
-import { fetchPostLikes } from "../features/post/postSlice";
-
-// Inside component:
-const { likeUsers, likeUsersLoading } = useAppSelector((state) => state.posts);
-const [showLikesModal, setShowLikesModal] = useState(false);
-
-const handleShowLikes = (postId: string) => {
-  dispatch(fetchPostLikes(postId));
-  setShowLikesModal(true);
-};
-```
-
-Pass the prop to `<PostCard>`:
-
-```tsx
-<PostCard ... onShowLikes={handleShowLikes} />
-```
-
-Render the modal:
-
-```tsx
-<LikesListModal
-  isOpen={showLikesModal}
-  onClose={() => setShowLikesModal(false)}
-  users={likeUsers}
-  isLoading={likeUsersLoading}
-/>
-```
-
-### 4. Wire it in `PostDetailWrapper.tsx`
-
-The UI is already updated — `PostDetailPage.tsx` now has `onShowLikes` prop and a clickable likes count. You just need to wire it in the wrapper.
-
-In `src/pages/PostDetailWrapper.tsx`:
-
-```ts
-import { useState } from "react";
-import { fetchPostLikes } from "../features/post/postSlice";
-import { LikesListModal } from "../components/LikesListModal";
-
-// Inside component:
-const { likeUsers, likeUsersLoading } = useAppSelector((state) => state.posts);
-const [showLikesModal, setShowLikesModal] = useState(false);
-
-const handleShowLikes = (postId: string) => {
-  dispatch(fetchPostLikes(postId));
-  setShowLikesModal(true);
-};
-```
-
-Pass it to `<PostDetailPage>`:
-
-```tsx
-<PostDetailPage ... onShowLikes={handleShowLikes} />
-```
-
-Render the modal after `<PostDetailPage>`:
-
-```tsx
-<LikesListModal
-  isOpen={showLikesModal}
-  onClose={() => setShowLikesModal(false)}
-  users={likeUsers}
-  isLoading={likeUsersLoading}
-/>
+// Pass to <PostDetailPage>:
+onDeleteComment={(postId, commentId) => dispatch(deleteComment({ postId, commentId }))}
 ```
 
 ---
 
 ### Backend endpoint needed:
-`GET /posts/:postId/likes` — returns an array of user objects `[{ id, username, fullName, avatar }]` who liked the post.
+`DELETE /posts/:postId/comment/:commentId` — deletes the comment. Only the comment owner should be allowed to delete.
 
 > Tell me when ready and I'll add the next task!

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { toggleBookmark } from "../features/saved/savedSlice";
+import { deleteComment } from "../features/post/postSlice";
 import {
   fetchPostById,
   toggleLikeSingle,
@@ -54,6 +55,9 @@ export function PostDetailWrapper() {
           navigate(-1);
         }}
         onShowLikes={handleShowLikes}
+        onDeleteComment={(postId, commentId) =>
+          dispatch(deleteComment({ postId, commentId }))
+        }
       />
       <LikesListModal
         isOpen={showLikesModal}
