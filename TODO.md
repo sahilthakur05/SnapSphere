@@ -38,5 +38,6 @@
 - [x] Step 35 — Edit Comment
 - [x] Step 36 — Scroll to Top Button
 - [x] Step 37 — Bio on Profile
+- [x] Step 38 — Report Post
 
 > Tell me when ready and I'll add the next task!

@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2, Pencil, Link2, Check } from "lucide-react";
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2, Pencil, Link2, Check, Flag } from "lucide-react";
 import type { Post } from '../features/post/postSlice';
 import { ConfirmModal } from "./ConfirmModal";
 import { ImageLightbox } from "./ImageLightbox";
+import { ReportModal } from "./ReportModal";
 import { timeAgo } from "../lib/timeAgo";
 interface Props {
   post: Post;
@@ -15,6 +16,7 @@ interface Props {
   onDelete?: (postId: string) => void;
   onEdit?: (post: Post) => void;
   onShowLikes?: (postId: string) => void;
+  onReport?: (postId: string, reason: string) => void;
 }
 
 export function PostCard({
@@ -27,6 +29,7 @@ export function PostCard({
   onDelete,
   onEdit,
   onShowLikes,
+  onReport,
 }: Props) {
   const [commentText, setCommentText] = useState("");
   const isLiked = post.likes.includes(currentUserId);
@@ -37,6 +40,8 @@ const [showShareMenu, setShowShareMenu] = useState(false);
 const [copied, setCopied] = useState(false);
 const [showHeartAnim, setShowHeartAnim] = useState(false);
 const [showLightbox, setShowLightbox] = useState(false);
+const [showReportModal, setShowReportModal] = useState(false);
+const [isReporting, setIsReporting] = useState(false);
 const lastTapRef = useRef(0);
 const isOwner = post.user.id === currentUserId;
 
@@ -93,14 +98,14 @@ const isOwner = post.user.id === currentUserId;
             {timeAgo(post.createdAt)}
           </p>
         </div>
-        {isOwner && (onDelete || onEdit) && (
+        {(isOwner && (onDelete || onEdit)) || (!isOwner && onReport) ? (
           <div className="relative ml-auto">
             <button onClick={() => setShowMenu(!showMenu)} className="text-gray-400 hover:text-gray-600">
               <MoreHorizontal className="h-5 w-5" />
             </button>
             {showMenu && (
               <div className="absolute right-0 top-8 z-10 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
-                {onEdit && (
+                {isOwner && onEdit && (
                   <button
                     onClick={() => { setShowMenu(false); onEdit(post); }}
                     className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
@@ -109,17 +114,28 @@ const isOwner = post.user.id === currentUserId;
                     Edit Post
                   </button>
                 )}
-                <button
-                  onClick={() => { setShowMenu(false); setShowDeleteConfirm(true); }}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-gray-50"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete Post
-                </button>
+                {isOwner && onDelete && (
+                  <button
+                    onClick={() => { setShowMenu(false); setShowDeleteConfirm(true); }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-gray-50"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete Post
+                  </button>
+                )}
+                {!isOwner && onReport && (
+                  <button
+                    onClick={() => { setShowMenu(false); setShowReportModal(true); }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-gray-50"
+                  >
+                    <Flag className="h-4 w-4" />
+                    Report Post
+                  </button>
+                )}
               </div>
             )}
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Image with double-tap to like, single-tap for lightbox */}
@@ -272,6 +288,17 @@ const isOwner = post.user.id === currentUserId;
         onClose={() => setShowLightbox(false)}
         src={post.image}
         alt={`Post by ${post.user.username}`}
+      />
+      <ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        onSubmit={async (reason) => {
+          setIsReporting(true);
+          onReport?.(post.id, reason);
+          setIsReporting(false);
+          setShowReportModal(false);
+        }}
+        isSubmitting={isReporting}
       />
     </div>
   );

@@ -262,6 +262,24 @@ export const editComment = createAsyncThunk(
   },
 );
 
+// Report a post
+export const reportPost = createAsyncThunk(
+  "posts/reportPost",
+  async (
+    { postId, reason }: { postId: string; reason: string },
+    { rejectWithValue },
+  ) => {
+    try {
+      await api.post(`/posts/${postId}/report`, { reason });
+      return postId;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to report post",
+      );
+    }
+  },
+);
+
 const postSlice = createSlice({
   name: "posts",
   initialState,
@@ -298,6 +316,7 @@ const postSlice = createSlice({
       state.isLoading = false;
       state.loadingMore = false;
     });
+    
 
     //create post
     builder.addCase(

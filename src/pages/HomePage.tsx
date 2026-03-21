@@ -7,6 +7,7 @@ import {
   editPost,
   fetchPostLikes,
   fetchPosts,
+  reportPost,
   toggleLike,
 } from "../features/post/postSlice";
 import type { Post } from "../features/post/postSlice";
@@ -119,6 +120,7 @@ export function HomePage() {
                   onDelete={(id) => dispatch(deletePost(id))}
                   onEdit={handleEdit}
                   onShowLikes={handleShowLikes}
+                  onReport={(id, reason) => dispatch(reportPost({ postId: id, reason }))}
                 />
               ))}
               <LoadMoreTrigger
