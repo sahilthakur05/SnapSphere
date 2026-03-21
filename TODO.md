@@ -42,5 +42,6 @@
 - [x] Step 39 — Desktop Post Detail Layout
 - [x] Step 40 — Improved Notifications Page
 - [x] Step 41 — Saved Posts Hover Stats & BottomNav on All Pages
+- [x] Step 42 — Improved 404 Page
 
 > Tell me when ready and I'll add the next task!
