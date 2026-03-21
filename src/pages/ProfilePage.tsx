@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 
 import { logout } from "../features/auth/authSlice";
 import { Navbar } from "../components/Navbar";
-import { Grid3X3 } from "lucide-react";
+import { Grid3X3, Heart } from "lucide-react";
 import { ProfileSkeleton } from "../components/ProfileSkeleton";
 import { EditProfileModal } from "../components/EditProfileModal";
 import {
@@ -185,12 +185,22 @@ export function ProfilePage() {
           ) : (
             <div className="grid grid-cols-3 gap-1">
               {posts.map((post) => (
-                <div key={post.id} className="aspect-square overflow-hidden">
+                <div
+                  key={post.id}
+                  className="group relative aspect-square cursor-pointer overflow-hidden"
+                  onClick={() => navigate(`/post/${post.id}`)}
+                >
                   <img
                     src={post.image}
                     alt="Post"
-                    className="h-full w-full object-cover hover:opacity-90 cursor-pointer"
+                    className="h-full w-full object-cover transition-opacity group-hover:opacity-75"
                   />
+                  <div className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 transition-opacity group-hover:opacity-100">
+                    <span className="flex items-center gap-1 text-sm font-semibold text-white drop-shadow-lg">
+                      <Heart className="h-5 w-5 fill-white" />
+                      {post.likes?.length ?? 0}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>

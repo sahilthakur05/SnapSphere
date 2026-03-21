@@ -31,5 +31,6 @@
 - [x] Step 28 — Skeleton Loading Screens
 - [x] Step 29 — Relative Time Formatting
 - [x] Step 30 — Image Lightbox Modal
+- [x] Step 31 — Profile Grid Hover Stats & Navigation
 
 > Tell me when ready and I'll add the next task!
