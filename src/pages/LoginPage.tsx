@@ -7,8 +7,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { clearError, login } from "../features/auth/authSlice";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export function LoginPage() {
+  usePageTitle("Sign In");
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { isLoading, error, isAuthenticated } = useAppSelector((s) => s.auth);

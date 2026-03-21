@@ -19,8 +19,11 @@ import { FollowListModal } from "../components/FollowListModal";
 import { ChangePasswordModal } from "../components/ChangePasswordModal";
 import { DeleteAccountModal } from "../components/DeleteAccountModal";
 import { changePassword } from "../features/auth/authSlice";
+import { usePageTitle } from "../hooks/usePageTitle";
+
 export function ProfilePage() {
   const { username } = useParams<{ username: string }>();
+  usePageTitle(username ? `${username}` : "Profile");
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { user: authUser } = useAppSelector((state) => state.auth);

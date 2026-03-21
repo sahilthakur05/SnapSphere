@@ -29,7 +29,9 @@ import { LoadMoreTrigger } from "../components/LoadMoreTrigger";
 import { ScrollToTop } from "../components/ScrollToTop";
 import { Toast } from "../components/Toast";
 import { useToast } from "../hooks/useToast";
+import { usePageTitle } from "../hooks/usePageTitle";
 export function HomePage() {
+  usePageTitle("Feed");
   const dispatch = useAppDispatch();
   const { posts, isLoading, hasMore, loadingMore, currentPage } = useAppSelector((state) => state.posts);
   const { user } = useAppSelector((state) => state.auth);

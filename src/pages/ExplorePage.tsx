@@ -9,8 +9,10 @@ import { BottomNav } from '../components/BottomNav';
 import { Search, Loader2 } from 'lucide-react';
 import { ExploreGrid } from '../components/ExploreGrid';
 import { UserCard } from '../components/UserCard';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export function ExplorePage() {
+  usePageTitle("Explore");
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { user: authUser } = useAppSelector((state) => state.auth);

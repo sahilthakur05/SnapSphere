@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { Camera, Home, ArrowLeft } from "lucide-react";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export function NotFoundPage() {
+  usePageTitle("Page Not Found");
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4">
       <Camera className="h-16 w-16 text-gray-300" />

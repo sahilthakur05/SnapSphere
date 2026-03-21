@@ -9,8 +9,10 @@ import {
 import { registerSchema, type RegisterFormData } from "../lib/validators";
 import { useEffect } from "react";
 import { Camera } from "lucide-react";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export function RegisterPage() {
+  usePageTitle("Sign Up");
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { isLoading, error, isAuthenticated } = useAppSelector((s) => s.auth);

@@ -8,6 +8,7 @@ import { BottomNav } from '../components/BottomNav';
 import { Heart, MessageCircle, UserPlus, Loader2 } from 'lucide-react';
 import type { Notification } from '../features/notification/notificationSlice';
 import { timeAgo } from '../lib/timeAgo';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 function NotificationIcon({ type }: { type: Notification['type'] }) {
   switch (type) {
@@ -32,6 +33,7 @@ function notificationText(n: Notification) {
 }
 
 export function NotificationsPage() {
+  usePageTitle("Notifications");
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { user: authUser } = useAppSelector((state) => state.auth);
