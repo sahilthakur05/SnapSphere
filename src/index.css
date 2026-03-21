@@ -7,4 +7,11 @@
   --color-brand-600: #1558c0;
   --color-brand-900: #1e3a8a;
   --font-sans: 'Inter', sans-serif;
+  --animate-bounce-in: bounce-in 0.3s ease-out;
+}
+
+@keyframes bounce-in {
+  0% { opacity: 0; transform: translateY(-12px); }
+  60% { opacity: 1; transform: translateY(2px); }
+  100% { transform: translateY(0); }
 }

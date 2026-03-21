@@ -27,6 +27,8 @@ import {
 import { BottomNav } from "../components/BottomNav";
 import { LoadMoreTrigger } from "../components/LoadMoreTrigger";
 import { ScrollToTop } from "../components/ScrollToTop";
+import { Toast } from "../components/Toast";
+import { useToast } from "../hooks/useToast";
 export function HomePage() {
   const dispatch = useAppDispatch();
   const { posts, isLoading, hasMore, loadingMore, currentPage } = useAppSelector((state) => state.posts);
@@ -43,6 +45,7 @@ export function HomePage() {
   const { users: suggestedUsers, isLoading: suggestionsLoading } =
     useAppSelector((state) => state.suggestions);
   const [showLikesModal, setShowLikesModal] = useState(false);
+  const { toast, showToast, hideToast } = useToast();
   //fetch post on mount
   useEffect(() => {
     dispatch(fetchPosts(1));
@@ -70,6 +73,7 @@ export function HomePage() {
     await dispatch(editPost({ postId: editingPost.id, caption: editCaption }));
     setIsEditSubmitting(false);
     setEditingPost(null);
+    showToast("Post updated", "success");
   };
 
   const handleLoadMore = () => {
@@ -117,10 +121,10 @@ export function HomePage() {
                   onComment={handleComment}
                   isSaved={savedPostIds.includes(post.id)}
                   onToggleSave={(id) => dispatch(toggleBookmark(id))}
-                  onDelete={(id) => dispatch(deletePost(id))}
+                  onDelete={(id) => { dispatch(deletePost(id)); showToast("Post deleted", "success"); }}
                   onEdit={handleEdit}
                   onShowLikes={handleShowLikes}
-                  onReport={(id, reason) => dispatch(reportPost({ postId: id, reason }))}
+                  onReport={(id, reason) => { dispatch(reportPost({ postId: id, reason })); showToast("Post reported. Thank you.", "info"); }}
                 />
               ))}
               <LoadMoreTrigger
@@ -173,6 +177,12 @@ export function HomePage() {
         unreadCount={unreadCount}
       />
       <ScrollToTop />
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
     </div>
   );
 }

@@ -45,5 +45,6 @@
 - [x] Step 42 — Improved 404 Page
 - [x] Step 43 — Delete Account
 - [x] Step 44 — Forgot Password
+- [x] Step 45 — Toast Notification System
 
 > Tell me when ready and I'll add the next task!
