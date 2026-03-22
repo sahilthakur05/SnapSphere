@@ -151,8 +151,8 @@ const profileSlice = createSlice({
 
     builder.addCase(
       updateProfile.fulfilled,
-      (state, action: PayloadAction<ProfileUser>) => {
-        state.profile = action.payload;
+      (state, action: PayloadAction<{ user: ProfileUser }>) => {
+        state.profile = action.payload.user;
       },
     );
     builder.addCase(fetchFollowList.pending, (state) => {
