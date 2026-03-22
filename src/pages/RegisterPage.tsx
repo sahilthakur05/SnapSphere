@@ -9,6 +9,7 @@ import {
 import { registerSchema, type RegisterFormData } from "../lib/validators";
 import { useEffect, useState } from "react";
 import { Camera, Eye, EyeOff } from "lucide-react";
+import { ButtonSpinner } from "../components/Spinner";
 import { usePageTitle } from "../hooks/usePageTitle";
 
 export function RegisterPage() {
@@ -195,7 +196,7 @@ export function RegisterPage() {
               disabled={isLoading}
               className="w-full rounded-lg bg-brand-500 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-50"
             >
-              {isLoading ? "Creating account…" : "Create Account"}
+              {isLoading ? <ButtonSpinner /> : "Create Account"}
             </button>
           </form>
         </div>

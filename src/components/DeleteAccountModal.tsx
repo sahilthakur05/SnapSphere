@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, AlertTriangle } from "lucide-react";
+import { ButtonSpinner } from "./Spinner";
 
 interface Props {
   isOpen: boolean;
@@ -97,7 +98,7 @@ export function DeleteAccountModal({
               disabled={!canDelete || isSubmitting}
               className="flex-1 rounded-lg bg-red-600 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
             >
-              {isSubmitting ? "Deleting…" : "Delete Account"}
+              {isSubmitting ? <ButtonSpinner /> : "Delete Account"}
             </button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { Camera, Eye, EyeOff } from "lucide-react";
+import { ButtonSpinner } from "../components/Spinner";
 import { loginSchema, type LoginFormData } from "../lib/validators";
 import { useForm } from "react-hook-form";
 
@@ -121,7 +122,7 @@ export function LoginPage() {
               disabled={isLoading}
               className="w-full rounded-lg bg-brand-500 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-50"
             >
-              {isLoading ? "Signing in…" : "Sign In"}
+              {isLoading ? <ButtonSpinner /> : "Sign In"}
             </button>
           </form>
         </div>

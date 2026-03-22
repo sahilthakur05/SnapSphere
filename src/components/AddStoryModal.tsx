@@ -1,5 +1,6 @@
 import { useRef, useState, type ChangeEvent } from "react";
 import { X, ImagePlus, Type, Smile, AtSign } from "lucide-react";
+import { ButtonSpinner } from "./Spinner";
 
 const EMOJI_LIST = ["😀", "😂", "😍", "🔥", "❤️", "👏", "🎉", "🤩", "😎", "💯", "🌟", "✨", "🙌", "💪", "🥳", "😇", "🤗", "💕", "🌈", "☕"];
 
@@ -171,7 +172,7 @@ export function AddStoryModal({ isOpen, onClose, onSubmit, isSubmitting }: Props
             disabled={!file || isSubmitting}
             className="w-full rounded-lg bg-brand-500 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-50"
           >
-            {isSubmitting ? "Uploading…" : "Share Story"}
+            {isSubmitting ? <ButtonSpinner /> : "Share Story"}
           </button>
         </div>
       </div>

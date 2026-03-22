@@ -50,7 +50,7 @@ export default function ChatPage() {
   if (chatLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-3 border-brand-500 border-t-transparent" />
       </div>
     );
   }

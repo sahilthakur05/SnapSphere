@@ -5,7 +5,6 @@ import {
   MessageCircle,
   Send,
   ArrowLeft,
-  Loader2,
   Bookmark,
   MoreHorizontal,
   Trash2,
@@ -18,6 +17,7 @@ import type { Post } from "../features/post/postSlice";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { timeAgo } from "../lib/timeAgo";
 import { parseText } from "../lib/parseText";
+import { Spinner } from "../components/Spinner";
 
 interface Props {
   post: Post | null;
@@ -78,7 +78,7 @@ export function PostDetailPage({
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <Loader2 className="h-10 w-10 animate-spin text-brand-500" />
+        <Spinner size="lg" />
       </div>
     );
   }

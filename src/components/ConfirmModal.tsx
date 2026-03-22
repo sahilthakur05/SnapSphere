@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import { ButtonSpinner } from "./Spinner";
 
 interface Props {
   isOpen: boolean;
@@ -62,7 +63,7 @@ export function ConfirmModal({
                 : "bg-brand-500 hover:bg-brand-600"
             }`}
           >
-            {isLoading ? "..." : confirmLabel}
+            {isLoading ? <ButtonSpinner /> : confirmLabel}
           </button>
         </div>
       </div>

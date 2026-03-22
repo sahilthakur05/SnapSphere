@@ -1,5 +1,6 @@
 import { useState, useRef, type ChangeEvent, type FormEvent } from 'react';
 import { X, Camera } from 'lucide-react';
+import { ButtonSpinner } from './Spinner';
 
 interface Props {
   isOpen: boolean;
@@ -102,7 +103,7 @@ export function EditProfileModal({ isOpen, onClose, currentFullName, currentAvat
             disabled={isSaving}
             className="w-full rounded-lg bg-brand-500 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-50"
           >
-            {isSaving ? 'Saving…' : 'Save Changes'}
+            {isSaving ? <ButtonSpinner /> : 'Save Changes'}
           </button>
         </form>
       </div>

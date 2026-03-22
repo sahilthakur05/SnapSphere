@@ -1,4 +1,5 @@
 import { X, Eye, EyeOff } from "lucide-react";
+import { ButtonSpinner } from "./Spinner";
 import { useState } from "react";
 
 interface Props {
@@ -146,7 +147,7 @@ export function ChangePasswordModal({
               disabled={isSubmitting}
               className="flex-1 rounded-lg bg-brand-500 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-50"
             >
-              {isSubmitting ? "Updating…" : "Update Password"}
+              {isSubmitting ? <ButtonSpinner /> : "Update Password"}
             </button>
           </div>
         </div>

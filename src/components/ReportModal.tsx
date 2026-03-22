@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, Flag } from "lucide-react";
+import { ButtonSpinner } from "./Spinner";
 
 const REPORT_REASONS = [
   "Spam",
@@ -82,7 +83,7 @@ export function ReportModal({ isOpen, onClose, onSubmit, isSubmitting }: Props) 
               disabled={!selected || isSubmitting}
               className="flex-1 rounded-lg bg-red-500 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50"
             >
-              {isSubmitting ? "Reporting…" : "Report"}
+              {isSubmitting ? <ButtonSpinner /> : "Report"}
             </button>
           </div>
         </div>

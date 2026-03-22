@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Bookmark, Loader2, Heart } from "lucide-react";
+import { Bookmark, Heart } from "lucide-react";
+import { Spinner } from "../components/Spinner";
 import type { Post } from "../features/post/postSlice";
 
 interface Props {
@@ -19,7 +20,7 @@ export function SavedPostsPage({ posts, isLoading }: Props) {
       {/* Loading state */}
       {isLoading && (
         <div className="flex justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-500" />
+          <Spinner size="lg" />
         </div>
       )}
 

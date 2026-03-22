@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
-import { Loader2 } from "lucide-react";
+import { Spinner } from "./Spinner";
 
 interface LikeUser {
   id: string;
@@ -37,7 +37,7 @@ export function LikesListModal({ isOpen, onClose, users, isLoading }: Props) {
         <div className="max-h-80 overflow-y-auto p-2">
           {isLoading ? (
             <div className="flex justify-center py-10">
-              <Loader2 className="h-6 w-6 animate-spin text-brand-500" />
+              <Spinner />
             </div>
           ) : users.length === 0 ? (
             <p className="py-10 text-center text-sm text-gray-400">

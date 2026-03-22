@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Heart } from "lucide-react";
-import { Loader2 } from "lucide-react";
+import { Spinner } from "./Spinner";
 
 interface ExplorePost {
   id: string;
@@ -19,7 +19,7 @@ export function ExploreGrid({ posts, isLoading }: Props) {
   if (isLoading) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-500" />
+        <Spinner />
       </div>
     );
   }

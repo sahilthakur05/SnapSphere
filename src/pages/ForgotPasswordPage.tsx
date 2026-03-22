@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Camera, ArrowLeft, Mail, CheckCircle } from "lucide-react";
+import { ButtonSpinner } from "../components/Spinner";
 
 interface Props {
   onSubmit: (email: string) => void;
@@ -92,7 +93,7 @@ export function ForgotPasswordPage({ onSubmit, isLoading, error }: Props) {
                   disabled={isLoading || !email.trim()}
                   className="w-full rounded-lg bg-brand-500 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-50"
                 >
-                  {isLoading ? "Sending…" : "Send Reset Link"}
+                  {isLoading ? <ButtonSpinner /> : "Send Reset Link"}
                 </button>
               </form>
             </>

@@ -6,7 +6,8 @@ import { followUser } from '../features/suggestion/suggestionSlice';
 import { logout } from '../features/auth/authSlice';
 import { Navbar } from '../components/Navbar';
 import { BottomNav } from '../components/BottomNav';
-import { Search, Loader2 } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { Spinner } from '../components/Spinner';
 import { ExploreGrid } from '../components/ExploreGrid';
 import { UserCard } from '../components/UserCard';
 import { usePageTitle } from '../hooks/usePageTitle';
@@ -61,7 +62,7 @@ export function ExplorePage() {
           <div className="mt-4 space-y-2">
             {isLoading ? (
               <div className="flex justify-center py-10">
-                <Loader2 className="h-6 w-6 animate-spin text-brand-500" />
+                <Spinner />
               </div>
             ) : results.length === 0 ? (
               <div className="py-10 text-center text-gray-400">

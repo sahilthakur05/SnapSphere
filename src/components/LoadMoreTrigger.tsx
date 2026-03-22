@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Loader2 } from "lucide-react";
+import { Spinner } from "./Spinner";
 
 interface Props {
   onTrigger: () => void;
@@ -41,7 +41,7 @@ export function LoadMoreTrigger({ onTrigger, isLoading, hasMore }: Props) {
   return (
     <div ref={ref} className="flex justify-center py-6">
       {isLoading && (
-        <Loader2 className="h-6 w-6 animate-spin text-brand-500" />
+        <Spinner />
       )}
     </div>
   );

@@ -5,7 +5,8 @@ import { fetchNotifications, markAllRead } from '../features/notification/notifi
 import { logout } from '../features/auth/authSlice';
 import { Navbar } from '../components/Navbar';
 import { BottomNav } from '../components/BottomNav';
-import { Heart, MessageCircle, UserPlus, Loader2 } from 'lucide-react';
+import { Heart, MessageCircle, UserPlus } from 'lucide-react';
+import { Spinner } from '../components/Spinner';
 import type { Notification } from '../features/notification/notificationSlice';
 import { timeAgo } from '../lib/timeAgo';
 import { usePageTitle } from '../hooks/usePageTitle';
@@ -65,7 +66,7 @@ export function NotificationsPage() {
 
         {isLoading ? (
           <div className="flex justify-center py-16">
-            <Loader2 className="h-7 w-7 animate-spin text-brand-500" />
+            <Spinner size="lg" />
           </div>
         ) : notifications.length === 0 ? (
           <div className="py-16 text-center text-gray-400">
