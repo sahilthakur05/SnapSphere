@@ -1,4 +1,4 @@
-import React, { useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useAppDispatch } from "../app/hooks";
 import { createPost } from "../features/post/postSlice";
 import { ImagePlus, X } from "lucide-react";

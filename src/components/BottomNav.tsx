@@ -9,7 +9,7 @@ interface Props {
   unreadMessages?: number;
 }
 
-export function BottomNav({ username, avatar, onCreatePost, unreadCount = 0, unreadMessages = 0 }: Props) {
+export function BottomNav({ username, avatar, onCreatePost, unreadCount: _unreadCount = 0, unreadMessages = 0 }: Props) {
   const { pathname } = useLocation();
 
   const isActive = (path: string) => pathname === path;
