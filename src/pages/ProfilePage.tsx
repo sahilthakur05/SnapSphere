@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { logout, deleteAccount } from "../features/auth/authSlice";
 import { Navbar } from "../components/Navbar";
 import { BottomNav } from "../components/BottomNav";
-import { Grid3X3, Heart } from "lucide-react";
+import { Grid3X3, Heart, LogOut } from "lucide-react";
 import { ProfileSkeleton } from "../components/ProfileSkeleton";
 import { EditProfileModal } from "../components/EditProfileModal";
 import {
@@ -256,19 +256,31 @@ const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null
             </div>
           )}
         </div>
-        {/* Danger zone */}
+        {/* Settings section (own profile only) */}
         {isOwnProfile && (
-          <div className="mt-8 border-t border-gray-200 pt-6">
-            <h3 className="text-sm font-semibold text-red-600">Danger Zone</h3>
-            <p className="mt-1 text-xs text-gray-500">
-              Permanently delete your account and all associated data.
-            </p>
+          <div className="mt-8 border-t border-gray-200 pt-6 space-y-6">
+            {/* Logout button */}
             <button
-              onClick={() => setShowDeleteAccountModal(true)}
-              className="mt-3 rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+              onClick={handleLogout}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 sm:w-auto"
             >
-              Delete Account
+              <LogOut className="h-4 w-4" />
+              Log Out
             </button>
+
+            {/* Danger zone */}
+            <div>
+              <h3 className="text-sm font-semibold text-red-600">Danger Zone</h3>
+              <p className="mt-1 text-xs text-gray-500">
+                Permanently delete your account and all associated data.
+              </p>
+              <button
+                onClick={() => setShowDeleteAccountModal(true)}
+                className="mt-3 rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+              >
+                Delete Account
+              </button>
+            </div>
           </div>
         )}
 
