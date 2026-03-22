@@ -49,7 +49,7 @@ export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount =
 
           <Link
             to="/notifications"
-            className="hidden relative text-gray-500 hover:text-brand-500 sm:block"
+            className="relative text-gray-500 hover:text-brand-500"
             title="Notifications"
           >
             <Bell className="h-5 w-5" />
