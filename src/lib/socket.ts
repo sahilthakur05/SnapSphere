@@ -5,6 +5,9 @@ let socket: Socket | null = null;
 export function connectSocket(userId: string) {
   if (socket?.connected) return socket;
 
+  // If socket exists but is still connecting, return it
+  if (socket) return socket;
+
   socket = io(import.meta.env.VITE_SOCKET_URL, {
     query: { userId },
     withCredentials: true,
@@ -16,6 +19,10 @@ export function connectSocket(userId: string) {
 
   socket.on("connect", () => {
     console.log("Socket connected:", socket?.id);
+  });
+
+  socket.on("connect_error", (err) => {
+    console.log("Socket connect error:", err.message);
   });
 
   socket.on("disconnect", (reason) => {

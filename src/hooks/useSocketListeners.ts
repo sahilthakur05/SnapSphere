@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getSocket } from "../lib/socket";
 import { useAppDispatch } from "../app/hooks";
 import {
@@ -11,7 +11,41 @@ import {
 
 export function useSocketListeners() {
   const dispatch = useAppDispatch();
+  const [connected, setConnected] = useState(false);
 
+  // Poll for socket availability and track connection state
+  useEffect(() => {
+    const check = setInterval(() => {
+      const s = getSocket();
+      if (s) {
+        setConnected(s.connected);
+        // Listen for future connect/disconnect to update state
+        s.off("connect", onConnect);
+        s.off("disconnect", onDisconnect);
+        s.on("connect", onConnect);
+        s.on("disconnect", onDisconnect);
+        clearInterval(check);
+      }
+    }, 100);
+
+    function onConnect() {
+      setConnected(true);
+    }
+    function onDisconnect() {
+      setConnected(false);
+    }
+
+    return () => {
+      clearInterval(check);
+      const s = getSocket();
+      if (s) {
+        s.off("connect", onConnect);
+        s.off("disconnect", onDisconnect);
+      }
+    };
+  }, []);
+
+  // Register event listeners whenever socket is available
   useEffect(() => {
     const socket = getSocket();
     if (!socket) return;
@@ -55,5 +89,5 @@ export function useSocketListeners() {
       socket.off("onlineUsers", onOnlineUsers);
       socket.off("messagesRead", onMessagesRead);
     };
-  }, [dispatch]);
+  }, [dispatch, connected]);
 }
