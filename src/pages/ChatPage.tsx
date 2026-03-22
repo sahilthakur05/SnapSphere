@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import {
   fetchMessages,
-  sendMessage,
   clearCurrentChat,
 } from "../features/message/messageSlice";
+import { getSocket } from "../lib/socket";
 import { timeAgo } from "../lib/timeAgo";
 import { ArrowLeft, Send, Image } from "lucide-react";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -13,17 +13,24 @@ import { usePageTitle } from "../hooks/usePageTitle";
 export default function ChatPage() {
   const { userId } = useParams<{ userId: string }>();
   const dispatch = useAppDispatch();
-  const { currentChat, chatLoading } = useAppSelector((s) => s.messages);
+  const { currentChat, chatLoading, typingUsers, onlineUsers } = useAppSelector((s) => s.messages);
   const currentUser = useAppSelector((s) => s.auth.user);
   const [text, setText] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const partner = currentChat.user;
+  const isPartnerOnline = userId ? onlineUsers.includes(userId) : false;
+  const isPartnerTyping = userId ? typingUsers[userId] : false;
   usePageTitle(partner ? `Chat with ${partner.fullName}` : "Chat");
 
   useEffect(() => {
-    if (userId) dispatch(fetchMessages(userId));
+    if (userId) {
+      dispatch(fetchMessages(userId));
+      // Mark messages as read
+      getSocket()?.emit("markRead", { senderId: userId });
+    }
     return () => {
       dispatch(clearCurrentChat());
     };
@@ -33,11 +40,30 @@ export default function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [currentChat.messages]);
 
-  const handleSend = () => {
+  // Send via socket
+  const handleSend = useCallback(() => {
     if (!text.trim() || !userId) return;
-    dispatch(sendMessage({ recipientId: userId, text: text.trim() }));
+    const socket = getSocket();
+    if (socket) {
+      socket.emit("sendMessage", { recipientId: userId, text: text.trim() });
+      socket.emit("stopTyping", { recipientId: userId });
+    }
     setText("");
     inputRef.current?.focus();
+  }, [text, userId]);
+
+  // Typing indicator
+  const handleInputChange = (value: string) => {
+    setText(value);
+    const socket = getSocket();
+    if (!socket || !userId) return;
+
+    socket.emit("typing", { recipientId: userId });
+
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit("stopTyping", { recipientId: userId });
+    }, 1500);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -67,14 +93,27 @@ export default function ChatPage() {
         </Link>
         {partner && (
           <Link to={`/profile/${partner.username}`} className="flex items-center gap-3">
-            <img
-              src={partner.avatar || `https://ui-avatars.com/api/?name=${partner.fullName}&background=random&size=128`}
-              alt={partner.username}
-              className="h-10 w-10 rounded-full object-cover ring-2 ring-gray-100"
-            />
+            <div className="relative">
+              <img
+                src={partner.avatar || `https://ui-avatars.com/api/?name=${partner.fullName}&background=random&size=128`}
+                alt={partner.username}
+                className="h-10 w-10 rounded-full object-cover ring-2 ring-gray-100"
+              />
+              {isPartnerOnline && (
+                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-white" />
+              )}
+            </div>
             <div>
               <p className="text-sm font-bold text-gray-900">{partner.fullName}</p>
-              <p className="text-xs text-gray-400">@{partner.username}</p>
+              <p className="text-xs text-gray-400">
+                {isPartnerTyping ? (
+                  <span className="text-brand-500">typing...</span>
+                ) : isPartnerOnline ? (
+                  <span className="text-green-500">Online</span>
+                ) : (
+                  `@${partner.username}`
+                )}
+              </p>
             </div>
           </Link>
         )}
@@ -159,7 +198,7 @@ export default function ChatPage() {
             ref={inputRef}
             type="text"
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
             className="flex-1 rounded-full border border-gray-200 bg-gray-50 px-5 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-1 focus:ring-blue-100"

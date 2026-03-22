@@ -44,6 +44,8 @@ interface MessageState {
   isLoading: boolean;
   chatLoading: boolean;
   totalUnread: number;
+  onlineUsers: string[];
+  typingUsers: Record<string, boolean>;
 }
 
 const initialState: MessageState = {
@@ -52,6 +54,8 @@ const initialState: MessageState = {
   isLoading: false,
   chatLoading: false,
   totalUnread: 0,
+  onlineUsers: [],
+  typingUsers: {},
 };
 
 export const fetchConversations = createAsyncThunk(
@@ -137,6 +141,60 @@ const messageSlice = createSlice({
     clearCurrentChat(state) {
       state.currentChat = { user: null, messages: [] };
     },
+    // Real-time: message sent by current user via socket
+    messageSentViaSocket(state, action: PayloadAction<Message>) {
+      state.currentChat.messages.push(action.payload);
+    },
+    // Real-time: message received from another user
+    receiveMessage(state, action: PayloadAction<Message & { fromUserId?: string }>) {
+      const msg = action.payload;
+      const senderId = msg.fromUserId || msg.senderId;
+
+      // If chat is open with this sender, add to current chat
+      if (state.currentChat.user?.id === senderId) {
+        state.currentChat.messages.push({
+          id: msg.id,
+          senderId: msg.senderId,
+          text: msg.text,
+          storyImage: msg.storyImage,
+          read: msg.read,
+          createdAt: msg.createdAt,
+        });
+      } else {
+        // Chat not open — increment unread
+        state.totalUnread += 1;
+      }
+
+      // Update conversation list
+      const convIdx = state.conversations.findIndex((c) => c.user.id === senderId);
+      if (convIdx !== -1) {
+        state.conversations[convIdx].lastMessage = {
+          id: msg.id,
+          text: msg.text,
+          senderId: msg.senderId,
+          storyImage: msg.storyImage,
+          createdAt: msg.createdAt,
+        };
+        if (state.currentChat.user?.id !== senderId) {
+          state.conversations[convIdx].unreadCount += 1;
+        }
+        // Move to top
+        const [conv] = state.conversations.splice(convIdx, 1);
+        state.conversations.unshift(conv);
+      }
+    },
+    updateTypingStatus(state, action: PayloadAction<{ userId: string; typing: boolean }>) {
+      state.typingUsers[action.payload.userId] = action.payload.typing;
+    },
+    updateOnlineUsers(state, action: PayloadAction<string[]>) {
+      state.onlineUsers = action.payload;
+    },
+    markMessagesAsRead(state, _action: PayloadAction<{ readBy: string }>) {
+      // Mark all messages in current chat as read
+      state.currentChat.messages.forEach((m) => {
+        m.read = true;
+      });
+    },
   },
   extraReducers: (builder) => {
     // Conversations
@@ -189,5 +247,12 @@ const messageSlice = createSlice({
   },
 });
 
-export const { clearCurrentChat } = messageSlice.actions;
+export const {
+  clearCurrentChat,
+  messageSentViaSocket,
+  receiveMessage,
+  updateTypingStatus,
+  updateOnlineUsers,
+  markMessagesAsRead,
+} = messageSlice.actions;
 export default messageSlice.reducer;

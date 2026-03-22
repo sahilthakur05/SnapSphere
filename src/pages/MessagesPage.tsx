@@ -12,7 +12,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 export default function MessagesPage() {
   usePageTitle("Messages");
   const dispatch = useAppDispatch();
-  const { conversations, isLoading, totalUnread } = useAppSelector((s) => s.messages);
+  const { conversations, isLoading, totalUnread, onlineUsers } = useAppSelector((s) => s.messages);
   const { user } = useAppSelector((s) => s.auth);
   const { unreadCount } = useAppSelector((s) => s.notifications);
 
@@ -91,6 +91,9 @@ export default function MessagesPage() {
                     alt={conv.user.username}
                     className="h-14 w-14 rounded-full object-cover ring-2 ring-gray-100"
                   />
+                  {onlineUsers.includes(conv.user.id) && (
+                    <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full bg-green-500 ring-2 ring-white" />
+                  )}
                   {conv.unreadCount > 0 && (
                     <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-bold text-white ring-2 ring-white">
                       {conv.unreadCount}
