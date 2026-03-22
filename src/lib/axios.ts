@@ -5,6 +5,15 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Attach token from localStorage as Authorization header (for cross-domain)
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // Unwrap backend { success, message, data } wrapper
 api.interceptors.response.use(
   (res) => {
