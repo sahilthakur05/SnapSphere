@@ -31,10 +31,27 @@ interface StoryState {
   viewedStories: Record<string, string[]>; // userId -> storyIds viewed
 }
 
+function loadViewedStories(): Record<string, string[]> {
+  try {
+    const stored = localStorage.getItem("viewedStories");
+    return stored ? JSON.parse(stored) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveViewedStories(viewedStories: Record<string, string[]>) {
+  try {
+    localStorage.setItem("viewedStories", JSON.stringify(viewedStories));
+  } catch {
+    // ignore storage errors
+  }
+}
+
 const initialState: StoryState = {
   storyGroups: [],
   isLoading: false,
-  viewedStories: {},
+  viewedStories: loadViewedStories(),
 };
 
 export const fetchStories = createAsyncThunk(
@@ -81,6 +98,7 @@ const storySlice = createSlice({
       }
       if (!state.viewedStories[userId].includes(storyId)) {
         state.viewedStories[userId].push(storyId);
+        saveViewedStories(state.viewedStories);
       }
     },
   },
