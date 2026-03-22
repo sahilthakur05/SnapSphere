@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { logout, deleteAccount } from "../features/auth/authSlice";
 import { Navbar } from "../components/Navbar";
 import { BottomNav } from "../components/BottomNav";
-import { Grid3X3, Heart, LogOut } from "lucide-react";
+import { Grid3X3, Heart, LogOut, MessageCircle } from "lucide-react";
 import { ProfileSkeleton } from "../components/ProfileSkeleton";
 import { EditProfileModal } from "../components/EditProfileModal";
 import {
@@ -173,16 +173,25 @@ const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null
                   </button>
                 </>
               ) : (
-                <button
-                  onClick={handleFollow}
-                  className={`rounded-lg px-4 py-1.5 text-sm font-semibold ${
-                    isFollowing
-                      ? "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                      : "bg-brand-500 text-white hover:bg-brand-600"
-                  }`}
-                >
-                  {isFollowing ? "Following" : "Follow"}
-                </button>
+                <>
+                  <button
+                    onClick={handleFollow}
+                    className={`rounded-lg px-4 py-1.5 text-sm font-semibold ${
+                      isFollowing
+                        ? "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                        : "bg-brand-500 text-white hover:bg-brand-600"
+                    }`}
+                  >
+                    {isFollowing ? "Following" : "Follow"}
+                  </button>
+                  <button
+                    onClick={() => navigate(`/messages/${profile.id}`)}
+                    className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    Message
+                  </button>
+                </>
               )}
             </div>
 
