@@ -1,10 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight, Heart, Send } from "lucide-react";
 
+interface StoryLikeUser {
+  id: string;
+  username: string;
+  avatar: string;
+}
+
 interface Story {
   id: string;
   image: string;
   caption?: string;
+  likes?: StoryLikeUser[];
   createdAt: string;
 }
 
@@ -205,7 +212,7 @@ export function StoryViewer({
 
         {/* Caption overlay */}
         {currentStory.caption && (
-          <div className="absolute bottom-20 left-0 right-0 px-6 text-center">
+          <div className={`absolute left-0 right-0 px-6 text-center ${currentStory.likes && currentStory.likes.length > 0 ? "bottom-32" : "bottom-20"}`}>
             <p className="rounded-lg bg-black/40 px-4 py-2 text-sm text-white backdrop-blur-sm">
               {currentStory.caption}
             </p>
@@ -216,6 +223,34 @@ export function StoryViewer({
         {showHeart && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <Heart className="h-24 w-24 animate-ping fill-red-500 text-red-500" />
+          </div>
+        )}
+
+        {/* Story likes — show who liked */}
+        {currentStory.likes && currentStory.likes.length > 0 && (
+          <div className="absolute bottom-20 left-0 right-0 z-10 px-4">
+            <div className="flex items-center gap-2 rounded-full bg-black/50 px-4 py-2 backdrop-blur-sm">
+              <Heart className="h-4 w-4 fill-red-500 text-red-500" />
+              <div className="flex -space-x-2">
+                {currentStory.likes.slice(0, 3).map((u) => (
+                  u.avatar ? (
+                    <img key={u.id} src={u.avatar} alt={u.username} className="h-6 w-6 rounded-full border-2 border-black/50 object-cover" />
+                  ) : (
+                    <div key={u.id} className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-black/50 bg-gray-300 text-[10px] font-bold text-gray-700">
+                      {u.username.charAt(0).toUpperCase()}
+                    </div>
+                  )
+                ))}
+              </div>
+              <span className="text-xs text-white">
+                {currentStory.likes.length === 1
+                  ? `${currentStory.likes[0].username} liked this`
+                  : currentStory.likes.length <= 3
+                    ? `${currentStory.likes.map((u) => u.username).join(", ")} liked this`
+                    : `${currentStory.likes[0].username} and ${currentStory.likes.length - 1} others liked this`
+                }
+              </span>
+            </div>
           </div>
         )}
 

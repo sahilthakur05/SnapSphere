@@ -13,6 +13,7 @@ import { usePageTitle } from '../hooks/usePageTitle';
 function NotificationIcon({ type }: { type: Notification['type'] }) {
   switch (type) {
     case 'like':
+    case 'story_like':
       return <Heart className="h-5 w-5 text-red-500" />;
     case 'comment':
       return <MessageCircle className="h-5 w-5 text-brand-500" />;
@@ -25,6 +26,8 @@ function notificationText(n: Notification) {
   switch (n.type) {
     case 'like':
       return 'liked your post';
+    case 'story_like':
+      return 'liked your story';
     case 'comment':
       return 'commented on your post';
     case 'follow':
@@ -71,7 +74,7 @@ export function NotificationsPage() {
         ) : (
           <div className="space-y-2">
             {notifications.map((n) => {
-              const href = n.type === 'follow'
+              const href = (n.type === 'follow' || n.type === 'story_like')
                 ? `/profile/${n.sender.username}`
                 : n.postId
                   ? `/post/${n.postId}`
@@ -107,8 +110,12 @@ export function NotificationsPage() {
                     </p>
                   </div>
 
-                  {/* Icon */}
-                  <NotificationIcon type={n.type} />
+                  {/* Story thumbnail or icon */}
+                  {n.storyImage ? (
+                    <img src={n.storyImage} alt="Story" className="h-11 w-11 rounded-lg object-cover" />
+                  ) : (
+                    <NotificationIcon type={n.type} />
+                  )}
                 </Link>
               );
             })}

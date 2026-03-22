@@ -5,26 +5,16 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Unwrap backend { success, message, data } wrapper
 api.interceptors.response.use(
-  (res) => res,
-  async (error) => {
-    if (error.response?.status === 401 && !error.config._retry) {
-      error.config._retry = true;
-      try {
-        const { data } = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
-          {},
-          { withCredentials: true },
-        );
-        localStorage.setItem("accessToken", data.accessToken);
-        error.config.headers.Authorization = `Bearer ${data.accessToken}`;
-        return api(error.config);
-      } catch {
-        localStorage.removeItem("accessToken");
-        window.location.href = "/login";
-        return Promise.reject(error);
-      }
+  (res) => {
+    if (res.data && typeof res.data === "object" && "success" in res.data && "data" in res.data) {
+      res.data = res.data.data;
     }
+    return res;
+  },
+  async (error) => {
+    // Let Redux handle 401s — don't force-redirect or infinite-loop
     return Promise.reject(error);
   },
 );

@@ -5,9 +5,16 @@ import {
 } from "@reduxjs/toolkit";
 import api from "../../lib/axios";
 
+interface StoryLikeUser {
+  id: string;
+  username: string;
+  avatar: string;
+}
+
 interface Story {
   id: string;
   image: string;
+  likes?: StoryLikeUser[];
   createdAt: string;
 }
 

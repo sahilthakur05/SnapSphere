@@ -5,6 +5,7 @@ import {
   Search,
   Bell,
   Bookmark,
+  MessageCircle,
 } from "lucide-react";
 import { AccountSwitcher } from "./AccountSwitcher";
 
@@ -20,12 +21,13 @@ interface Props {
   onCreatePost: () => void;
   onLogout: () => void;
   unreadCount?: number;
+  unreadMessages?: number;
   savedAccounts?: SavedAccount[];
   onSwitchAccount?: (accountId: string) => void;
   onAddAccount?: () => void;
 }
 
-export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount = 0, savedAccounts = [], onSwitchAccount, onAddAccount }: Props) {
+export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount = 0, unreadMessages = 0, savedAccounts = [], onSwitchAccount, onAddAccount }: Props) {
   return (
     <nav className="sticky top-0 z-40 border-b border-gray-200 bg-white">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
@@ -57,6 +59,19 @@ export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount =
               </span>
             )}
           </Link>
+          <Link
+            to="/messages"
+            className="relative hidden text-gray-500 hover:text-brand-500 sm:block"
+            title="Messages"
+          >
+            <MessageCircle className="h-5 w-5" />
+            {unreadMessages > 0 && (
+              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">
+                {unreadMessages > 9 ? "9+" : unreadMessages}
+              </span>
+            )}
+          </Link>
+
           <Link
             to="/saved"
             className="text-gray-500 hover:text-brand-500"

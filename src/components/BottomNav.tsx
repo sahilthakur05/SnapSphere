@@ -1,14 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, PlusSquare, Bell, User } from "lucide-react";
+import { Home, Search, PlusSquare, MessageCircle, User } from "lucide-react";
 
 interface Props {
   username: string;
   avatar?: string;
   onCreatePost: () => void;
   unreadCount?: number;
+  unreadMessages?: number;
 }
 
-export function BottomNav({ username, avatar, onCreatePost, unreadCount = 0 }: Props) {
+export function BottomNav({ username, avatar, onCreatePost, unreadCount = 0, unreadMessages = 0 }: Props) {
   const { pathname } = useLocation();
 
   const isActive = (path: string) => pathname === path;
@@ -42,16 +43,16 @@ export function BottomNav({ username, avatar, onCreatePost, unreadCount = 0 }: P
         </button>
 
         <Link
-          to="/notifications"
-          className={`relative flex flex-col items-center gap-0.5 ${isActive("/notifications") ? "text-brand-500" : "text-gray-500"}`}
+          to="/messages"
+          className={`relative flex flex-col items-center gap-0.5 ${pathname.startsWith("/messages") ? "text-brand-500" : "text-gray-500"}`}
         >
-          <Bell className="h-6 w-6" />
-          {unreadCount > 0 && (
-            <span className="absolute -right-1 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-              {unreadCount > 9 ? "9+" : unreadCount}
+          <MessageCircle className="h-6 w-6" />
+          {unreadMessages > 0 && (
+            <span className="absolute -right-1 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">
+              {unreadMessages > 9 ? "9+" : unreadMessages}
             </span>
           )}
-          <span className="text-[10px]">Alerts</span>
+          <span className="text-[10px]">Messages</span>
         </Link>
 
         <Link

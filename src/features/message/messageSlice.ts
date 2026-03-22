@@ -1,0 +1,193 @@
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
+import api from "../../lib/axios";
+
+interface MessageUser {
+  id: string;
+  username: string;
+  fullName: string;
+  avatar: string;
+}
+
+interface LastMessage {
+  id: string;
+  text: string;
+  senderId: string;
+  storyImage: string | null;
+  createdAt: string;
+}
+
+export interface Conversation {
+  user: MessageUser;
+  lastMessage: LastMessage;
+  unreadCount: number;
+}
+
+export interface Message {
+  id: string;
+  senderId: string;
+  text: string;
+  storyImage: string | null;
+  read: boolean;
+  createdAt: string;
+}
+
+interface MessageState {
+  conversations: Conversation[];
+  currentChat: {
+    user: MessageUser | null;
+    messages: Message[];
+  };
+  isLoading: boolean;
+  chatLoading: boolean;
+  totalUnread: number;
+}
+
+const initialState: MessageState = {
+  conversations: [],
+  currentChat: { user: null, messages: [] },
+  isLoading: false,
+  chatLoading: false,
+  totalUnread: 0,
+};
+
+export const fetchConversations = createAsyncThunk(
+  "messages/fetchConversations",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get("/messages");
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch conversations",
+      );
+    }
+  },
+);
+
+export const fetchMessages = createAsyncThunk(
+  "messages/fetchMessages",
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/messages/${userId}`);
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch messages",
+      );
+    }
+  },
+);
+
+export const sendMessage = createAsyncThunk(
+  "messages/sendMessage",
+  async (
+    { recipientId, text }: { recipientId: string; text: string },
+    { rejectWithValue },
+  ) => {
+    try {
+      const res = await api.post("/messages", { recipientId, text });
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to send message",
+      );
+    }
+  },
+);
+
+export const likeStory = createAsyncThunk(
+  "messages/likeStory",
+  async (storyId: string, { rejectWithValue }) => {
+    try {
+      await api.put(`/stories/${storyId}/like`);
+      return storyId;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to like story",
+      );
+    }
+  },
+);
+
+export const replyToStory = createAsyncThunk(
+  "messages/replyToStory",
+  async (
+    { storyId, text }: { storyId: string; text: string },
+    { rejectWithValue },
+  ) => {
+    try {
+      const res = await api.post(`/stories/${storyId}/reply`, { text });
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to reply to story",
+      );
+    }
+  },
+);
+
+const messageSlice = createSlice({
+  name: "messages",
+  initialState,
+  reducers: {
+    clearCurrentChat(state) {
+      state.currentChat = { user: null, messages: [] };
+    },
+  },
+  extraReducers: (builder) => {
+    // Conversations
+    builder.addCase(fetchConversations.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(
+      fetchConversations.fulfilled,
+      (state, action: PayloadAction<Conversation[]>) => {
+        state.isLoading = false;
+        state.conversations = action.payload;
+        state.totalUnread = action.payload.reduce(
+          (sum, c) => sum + c.unreadCount,
+          0,
+        );
+      },
+    );
+    builder.addCase(fetchConversations.rejected, (state) => {
+      state.isLoading = false;
+    });
+
+    // Chat messages
+    builder.addCase(fetchMessages.pending, (state) => {
+      state.chatLoading = true;
+    });
+    builder.addCase(
+      fetchMessages.fulfilled,
+      (
+        state,
+        action: PayloadAction<{ user: MessageUser; messages: Message[] }>,
+      ) => {
+        state.chatLoading = false;
+        state.currentChat = {
+          user: action.payload.user,
+          messages: action.payload.messages,
+        };
+      },
+    );
+    builder.addCase(fetchMessages.rejected, (state) => {
+      state.chatLoading = false;
+    });
+
+    // Send message
+    builder.addCase(
+      sendMessage.fulfilled,
+      (state, action: PayloadAction<Message>) => {
+        state.currentChat.messages.push(action.payload);
+      },
+    );
+  },
+});
+
+export const { clearCurrentChat } = messageSlice.actions;
+export default messageSlice.reducer;

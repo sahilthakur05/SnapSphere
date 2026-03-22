@@ -34,6 +34,7 @@ import { StoriesBar } from "../components/StoriesBar";
 import { StoryViewer } from "../components/StoryViewer";
 import { AddStoryModal } from "../components/AddStoryModal";
 import { fetchStories, addStory, markStoryViewed } from "../features/story/storySlice";
+import { likeStory, replyToStory, fetchConversations } from "../features/message/messageSlice";
 export function HomePage() {
   usePageTitle("Feed");
   const dispatch = useAppDispatch();
@@ -53,6 +54,7 @@ export function HomePage() {
   const [showLikesModal, setShowLikesModal] = useState(false);
   const { toast, showToast, hideToast } = useToast();
   const { storyGroups, viewedStories } = useAppSelector((state) => state.stories);
+  const { totalUnread: unreadMessages } = useAppSelector((state) => state.messages);
   const [showStoryViewer, setShowStoryViewer] = useState(false);
   const [storyGroupIndex, setStoryGroupIndex] = useState(0);
   const [showAddStory, setShowAddStory] = useState(false);
@@ -63,7 +65,8 @@ export function HomePage() {
     dispatch(fetchPosts(1));
     dispatch(fetchNotifications());
     dispatch(fetchSuggestions());
-    dispatch(fetchStories())
+    dispatch(fetchStories());
+    dispatch(fetchConversations());
   }, [dispatch]);
   const handleLike = (postId: string) => {
     dispatch(toggleLike(postId));
@@ -124,6 +127,7 @@ export function HomePage() {
         onCreatePost={() => setShowCreateModal(true)}
         onLogout={handleLogout}
         unreadCount={unreadCount}
+        unreadMessages={unreadMessages}
       />
 
       <div className="mx-auto flex max-w-5xl gap-8 px-4 py-6">
@@ -221,6 +225,7 @@ export function HomePage() {
         avatar={user?.avatar}
         onCreatePost={() => setShowCreateModal(true)}
         unreadCount={unreadCount}
+        unreadMessages={unreadMessages}
       />
       <StoryViewer
         isOpen={showStoryViewer}
@@ -228,8 +233,8 @@ export function HomePage() {
         storyGroups={storyGroups}
         initialGroupIndex={storyGroupIndex}
         onStoryViewed={(userId, storyId) => dispatch(markStoryViewed({ userId, storyId }))}
-        onLikeStory={() => showToast("Story liked!", "success")}
-        onReplyStory={(_, text) => showToast(`Reply sent: "${text}"`, "success")}
+        onLikeStory={(storyId) => { dispatch(likeStory(storyId)); showToast("Story liked!", "success"); }}
+        onReplyStory={(storyId, text) => { dispatch(replyToStory({ storyId, text })); showToast("Reply sent!", "success"); }}
       />
       <AddStoryModal
         isOpen={showAddStory}

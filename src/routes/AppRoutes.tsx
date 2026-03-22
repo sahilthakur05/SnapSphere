@@ -11,6 +11,8 @@ import { NotificationsPage } from "../pages/NotificationsPage";
 import { PostDetailWrapper } from "../pages/PostDetailWrapper";
 import { SavedPostsWrapper } from "../pages/SavedPostsWrapper";
 import { ForgotPasswordWrapper } from "../pages/ForgotPasswordWrapper";
+import MessagesPage from "../pages/MessagesPage";
+import ChatPage from "../pages/ChatPage";
 export function AppRoutes() {
   return (
     <Routes>
@@ -28,6 +30,8 @@ export function AppRoutes() {
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/post/:postId" element={<PostDetailWrapper />} />
         <Route path="/saved" element={<SavedPostsWrapper />} />
+        <Route path="/messages" element={<MessagesPage />} />
+        <Route path="/messages/:userId" element={<ChatPage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

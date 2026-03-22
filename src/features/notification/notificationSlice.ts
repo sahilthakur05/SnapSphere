@@ -7,13 +7,14 @@ import api from "../../lib/axios";
 
 export interface Notification {
   id: string;
-  type: "like" | "comment" | "follow";
+  type: "like" | "comment" | "follow" | "story_like";
   sender: {
     id: string;
     username: string;
     avatar: string;
   };
   postId?: string;
+  storyImage?: string;
   read: boolean;
   createdAt: string;
 }

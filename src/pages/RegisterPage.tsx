@@ -7,8 +7,8 @@ import {
   clearError,
 } from "../features/auth/authSlice";
 import { registerSchema, type RegisterFormData } from "../lib/validators";
-import { useEffect } from "react";
-import { Camera } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Camera, Eye, EyeOff } from "lucide-react";
 import { usePageTitle } from "../hooks/usePageTitle";
 
 export function RegisterPage() {
@@ -17,6 +17,8 @@ export function RegisterPage() {
   const navigate = useNavigate();
   const { isLoading, error, isAuthenticated } = useAppSelector((s) => s.auth);
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -133,13 +135,22 @@ export function RegisterPage() {
               >
                 Password
               </label>
-              <input
-                id="password"
-                type="password"
-                {...register("password")}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  {...register("password")}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-10 text-sm outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
               {errors.password && (
                 <p className="mt-1 text-xs text-red-500">
                   {errors.password.message}
@@ -155,13 +166,22 @@ export function RegisterPage() {
               >
                 Confirm Password
               </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                {...register("confirmPassword")}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  {...register("confirmPassword")}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-10 text-sm outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
               {errors.confirmPassword && (
                 <p className="mt-1 text-xs text-red-500">
                   {errors.confirmPassword.message}
