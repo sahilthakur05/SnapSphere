@@ -109,7 +109,7 @@ export function PostDetailPage({
         <h1 className="text-lg font-semibold text-gray-900">Post</h1>
       </div>
 
-      <div className="mx-auto max-w-5xl py-4 px-4">
+      <div className="mx-auto max-w-5xl py-2 px-2 sm:py-4 sm:px-4">
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden lg:flex lg:max-h-[85vh]">
           {/* Image with double-tap to like */}
           <div className="relative lg:w-1/2 lg:shrink-0" onClick={handleDoubleTap}>

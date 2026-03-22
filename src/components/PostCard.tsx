@@ -145,7 +145,7 @@ const isOwner = post.user.id === currentUserId;
         <img
           src={post.image}
           alt="Post"
-          className="w-full cursor-pointer object-cover"
+          className="w-full max-h-[70vh] cursor-pointer object-cover"
         />
         {showHeartAnim && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

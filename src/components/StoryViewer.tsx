@@ -145,9 +145,9 @@ export function StoryViewer({
       {(groupIndex > 0 || storyIndex > 0) && (
         <button
           onClick={goPrev}
-          className="absolute left-4 z-10 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white/10 p-1.5 text-white hover:bg-white/20 sm:left-4 sm:p-2"
         >
-          <ChevronLeft className="h-6 w-6" />
+          <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
         </button>
       )}
 
@@ -155,9 +155,9 @@ export function StoryViewer({
       {(groupIndex < storyGroups.length - 1 || storyIndex < currentGroup.stories.length - 1) && (
         <button
           onClick={goNext}
-          className="absolute right-4 z-10 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white/10 p-1.5 text-white hover:bg-white/20 sm:right-4 sm:p-2"
         >
-          <ChevronRight className="h-6 w-6" />
+          <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
         </button>
       )}
 

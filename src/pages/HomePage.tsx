@@ -130,9 +130,9 @@ export function HomePage() {
         unreadMessages={unreadMessages}
       />
 
-      <div className="mx-auto flex max-w-5xl gap-8 px-4 py-6">
+      <div className="mx-auto flex max-w-5xl gap-8 px-2 py-4 sm:px-4 sm:py-6">
         {/* Feed */}
-        <main className="flex-1 max-w-2xl space-y-6">
+        <main className="mx-auto w-full max-w-2xl space-y-4 sm:space-y-6">
           {/* Stories */}
           <StoriesBar
             currentUser={{ username: user?.username ?? "", avatar: user?.avatar }}

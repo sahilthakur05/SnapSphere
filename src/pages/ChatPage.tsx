@@ -153,7 +153,7 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <div className="sticky bottom-0 border-t bg-white px-4 py-3">
+      <div className="sticky bottom-0 border-t bg-white px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         <div className="mx-auto flex max-w-2xl items-center gap-2">
           <input
             ref={inputRef}

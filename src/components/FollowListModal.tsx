@@ -20,8 +20,8 @@ export function FollowListModal({ isOpen, onClose, title, users, isLoading }: Pr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-sm rounded-xl bg-white shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50">
+      <div className="w-full max-h-[80vh] rounded-t-xl sm:rounded-xl bg-white shadow-xl sm:max-w-sm">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
           <h2 className="text-base font-semibold text-gray-900">{title}</h2>

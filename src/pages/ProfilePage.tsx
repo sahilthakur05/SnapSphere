@@ -137,39 +137,41 @@ const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null
 
       <main className="mx-auto max-w-2xl px-4 py-8">
         {/* Profile header */}
-        <div className="flex items-center gap-8">
+        <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-8">
           {profile.avatar ? (
             <img
               src={profile.avatar}
               alt={profile.username}
-              className="h-24 w-24 rounded-full object-cover border-2 border-gray-200"
+              className="h-20 w-20 shrink-0 rounded-full object-cover border-2 border-gray-200 sm:h-24 sm:w-24"
             />
           ) : (
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-brand-100 text-3xl font-bold text-brand-600">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-brand-100 text-2xl font-bold text-brand-600 sm:h-24 sm:w-24 sm:text-3xl">
               {profile.username.charAt(0).toUpperCase()}
             </div>
           )}
 
-          <div className="flex-1">
-            <div className="flex items-center gap-4">
-              <h1 className="text-xl font-semibold text-gray-900">
-                {profile.username}
-              </h1>
+          <div className="flex-1 w-full text-center sm:text-left">
+            <h1 className="text-xl font-semibold text-gray-900">
+              {profile.username}
+            </h1>
+
+            {/* Action buttons */}
+            <div className="mt-2 flex justify-center gap-2 sm:justify-start">
               {isOwnProfile ? (
-                <div className="flex gap-2">
+                <>
                   <button
                     onClick={() => setShowEditModal(true)}
-                    className="rounded-lg border border-gray-300 bg-white px-4 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 sm:px-4 sm:text-sm"
                   >
                     Edit Profile
                   </button>
                   <button
                     onClick={() => setShowPasswordModal(true)}
-                    className="rounded-lg border border-gray-300 bg-white px-4 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 sm:px-4 sm:text-sm"
                   >
                     Change Password
                   </button>
-                </div>
+                </>
               ) : (
                 <button
                   onClick={handleFollow}
@@ -184,13 +186,13 @@ const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null
               )}
             </div>
 
-            <p className="mt-1 text-sm font-medium text-gray-800">{profile.fullName}</p>
+            <p className="mt-2 text-sm font-medium text-gray-800">{profile.fullName}</p>
             {profile.bio && (
               <p className="mt-1 text-sm text-gray-600 whitespace-pre-line">{profile.bio}</p>
             )}
 
             {/* Stats */}
-            <div className="mt-3 flex gap-6">
+            <div className="mt-3 flex justify-center gap-6 sm:justify-start">
               <div className="text-sm">
                 <span className="font-semibold text-gray-900">
                   {posts.length}

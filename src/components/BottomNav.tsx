@@ -15,7 +15,7 @@ export function BottomNav({ username, avatar, onCreatePost, unreadCount: _unread
   const isActive = (path: string) => pathname === path;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white lg:hidden pb-[env(safe-area-inset-bottom)]">
       <div className="flex h-14 items-center justify-around">
         <Link
           to="/"
