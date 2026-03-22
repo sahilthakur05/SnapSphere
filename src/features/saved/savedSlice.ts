@@ -3,7 +3,7 @@ import {
   createSlice,
   type PayloadAction,
 } from "@reduxjs/toolkit";
-import type { Post } from "../post/postSlice";
+import { toggleLike, toggleLikeSingle, type Post } from "../post/postSlice";
 import api from "../../lib/axios";
 
 interface SavedState {
@@ -107,6 +107,14 @@ const savedSlice = createSlice({
         state.savedPostIds.push(postId);
       }
     });
+
+    // Cross-slice: sync likes from feed/detail page to saved posts
+    const syncLikes = (state: SavedState, action: PayloadAction<{ postId: string; likes: string[] }>) => {
+      const post = state.savedPosts.find((p) => p.id === action.payload.postId);
+      if (post) post.likes = action.payload.likes;
+    };
+    builder.addCase(toggleLike.fulfilled, syncLikes);
+    builder.addCase(toggleLikeSingle.fulfilled, syncLikes);
   },
 });
 export default savedSlice.reducer;

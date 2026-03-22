@@ -23,23 +23,28 @@ interface NotificationState {
   notifications: Notification[];
   unreadCount: number;
   isLoading: boolean;
+  loadingMore: boolean;
+  hasMore: boolean;
+  currentPage: number;
   error: string | null;
 }
 const initialState: NotificationState = {
   notifications: [],
   unreadCount: 0,
   isLoading: false,
+  loadingMore: false,
+  hasMore: true,
+  currentPage: 1,
   error: null,
 };
 
-// Fetch all notifications
-
+// Fetch notifications with pagination
 export const fetchNotifications = createAsyncThunk(
   "notifications/fetchNotifications",
-  async (_, { rejectWithValue }) => {
+  async (page: number = 1, { rejectWithValue }) => {
     try {
-      const res = await api.get("/notifications");
-      return res.data; // expects { notifications: Notification[], unreadCount: number }
+      const res = await api.get(`/notifications?page=${page}&limit=20`);
+      return { ...res.data, page };
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || "Failed to fetch notifications",
@@ -62,12 +67,20 @@ export const markAllRead = createAsyncThunk(
     }
   },
 );
-;
+
 const notificationSlice = createSlice({
   name: "notifications",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
+    builder.addCase(fetchNotifications.pending, (state, action) => {
+      if (action.meta.arg === 1 || action.meta.arg === undefined) {
+        state.isLoading = true;
+      } else {
+        state.loadingMore = true;
+      }
+      state.error = null;
+    });
     builder.addCase(
       fetchNotifications.fulfilled,
       (
@@ -75,15 +88,25 @@ const notificationSlice = createSlice({
         action: PayloadAction<{
           notifications: Notification[];
           unreadCount: number;
+          hasMore: boolean;
+          page: number;
         }>,
       ) => {
         state.isLoading = false;
-        state.notifications = action.payload.notifications;
+        state.loadingMore = false;
+        if (action.payload.page === 1) {
+          state.notifications = action.payload.notifications;
+        } else {
+          state.notifications.push(...action.payload.notifications);
+        }
         state.unreadCount = action.payload.unreadCount;
+        state.hasMore = action.payload.hasMore;
+        state.currentPage = action.payload.page;
       },
     );
     builder.addCase(fetchNotifications.rejected, (state, action) => {
       state.isLoading = false;
+      state.loadingMore = false;
       state.error = action.payload as string;
     });
     builder.addCase(markAllRead.fulfilled, (state) => {

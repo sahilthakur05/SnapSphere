@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { fetchNotifications, markAllRead } from '../features/notification/notificationSlice';
@@ -7,6 +7,7 @@ import { Navbar } from '../components/Navbar';
 import { BottomNav } from '../components/BottomNav';
 import { Heart, MessageCircle, UserPlus } from 'lucide-react';
 import { Spinner } from '../components/Spinner';
+import { LoadMoreTrigger } from '../components/LoadMoreTrigger';
 import type { Notification } from '../features/notification/notificationSlice';
 import { timeAgo } from '../lib/timeAgo';
 import { usePageTitle } from '../hooks/usePageTitle';
@@ -41,12 +42,16 @@ export function NotificationsPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { user: authUser } = useAppSelector((state) => state.auth);
-  const { notifications, isLoading } = useAppSelector((state) => state.notifications);
+  const { notifications, isLoading, loadingMore, hasMore, currentPage } = useAppSelector((state) => state.notifications);
 
   useEffect(() => {
-    dispatch(fetchNotifications());
+    dispatch(fetchNotifications(1));
     dispatch(markAllRead());
   }, [dispatch]);
+
+  const handleLoadMore = useCallback(() => {
+    dispatch(fetchNotifications(currentPage + 1));
+  }, [dispatch, currentPage]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -121,6 +126,11 @@ export function NotificationsPage() {
                 </Link>
               );
             })}
+            <LoadMoreTrigger
+              onTrigger={handleLoadMore}
+              isLoading={loadingMore}
+              hasMore={hasMore}
+            />
           </div>
         )}
       </main>

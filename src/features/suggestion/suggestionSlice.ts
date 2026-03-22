@@ -4,6 +4,7 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 import api from "../../lib/axios";
+import { followUser as profileFollowUser } from "../profile/profileSlice";
 
 interface SuggestedUser {
   id: string;
@@ -71,13 +72,18 @@ const suggestionsSlice = createSlice({
     builder.addCase(fetchSuggestions.rejected, (state) => {
       state.isLoading = false;
     });
-    // Remove user from suggestions after following
+    // Remove user from suggestions after following (from suggestion card)
     builder.addCase(
       followUser.fulfilled,
       (state, action: PayloadAction<string>) => {
         state.users = state.users.filter((u) => u.id !== action.payload);
       },
     );
+    // Cross-slice: also remove from suggestions when followed from profile page
+    builder.addCase(profileFollowUser.fulfilled, (state, action) => {
+      const { userId } = action.meta.arg;
+      state.users = state.users.filter((u) => u.id !== userId);
+    });
   },
 });
 

@@ -37,7 +37,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (userId) {
-      dispatch(fetchMessages(userId));
+      dispatch(fetchMessages({ userId }));
       getSocket()?.emit("markRead", { senderId: userId });
     }
     return () => {

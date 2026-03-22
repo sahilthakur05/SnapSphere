@@ -44,6 +44,9 @@ interface MessageState {
   };
   isLoading: boolean;
   chatLoading: boolean;
+  chatLoadingMore: boolean;
+  chatHasMore: boolean;
+  chatPage: number;
   error: string | null;
   totalUnread: number;
   onlineUsers: string[];
@@ -55,6 +58,9 @@ const initialState: MessageState = {
   currentChat: { user: null, messages: [] },
   isLoading: false,
   chatLoading: false,
+  chatLoadingMore: false,
+  chatHasMore: true,
+  chatPage: 1,
   error: null,
   totalUnread: 0,
   onlineUsers: [],
@@ -77,10 +83,10 @@ export const fetchConversations = createAsyncThunk(
 
 export const fetchMessages = createAsyncThunk(
   "messages/fetchMessages",
-  async (userId: string, { rejectWithValue }) => {
+  async ({ userId, page = 1 }: { userId: string; page?: number }, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/messages/${userId}`);
-      return res.data;
+      const res = await api.get(`/messages/${userId}?page=${page}&limit=30`);
+      return { ...res.data, page };
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || "Failed to fetch messages",
@@ -221,25 +227,41 @@ const messageSlice = createSlice({
       state.error = (action.payload as string) || "Failed to fetch conversations";
     });
 
-    // Chat messages
-    builder.addCase(fetchMessages.pending, (state) => {
-      state.chatLoading = true;
+    // Chat messages (paginated)
+    builder.addCase(fetchMessages.pending, (state, action) => {
+      if (action.meta.arg.page === 1 || action.meta.arg.page === undefined) {
+        state.chatLoading = true;
+      } else {
+        state.chatLoadingMore = true;
+      }
     });
     builder.addCase(
       fetchMessages.fulfilled,
       (
         state,
-        action: PayloadAction<{ user: MessageUser; messages: Message[] }>,
+        action: PayloadAction<{ user: MessageUser; messages: Message[]; hasMore: boolean; page: number }>,
       ) => {
         state.chatLoading = false;
-        state.currentChat = {
-          user: action.payload.user,
-          messages: action.payload.messages,
-        };
+        state.chatLoadingMore = false;
+        state.chatHasMore = action.payload.hasMore;
+        state.chatPage = action.payload.page;
+        if (action.payload.page === 1) {
+          state.currentChat = {
+            user: action.payload.user,
+            messages: action.payload.messages,
+          };
+        } else {
+          // Prepend older messages
+          state.currentChat.messages = [
+            ...action.payload.messages,
+            ...state.currentChat.messages,
+          ];
+        }
       },
     );
     builder.addCase(fetchMessages.rejected, (state, action) => {
       state.chatLoading = false;
+      state.chatLoadingMore = false;
       state.error = (action.payload as string) || "Failed to fetch messages";
     });
 

@@ -4,6 +4,7 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 import api from "../../lib/axios";
+import { toggleLike, toggleLikeSingle } from "../post/postSlice";
 
 interface ProfileUser {
   id: string;
@@ -194,6 +195,14 @@ const profileSlice = createSlice({
     builder.addCase(fetchFollowList.rejected, (state) => {
       state.followListLoading = false;
     });
+
+    // Cross-slice: sync likes from feed/detail page to profile posts
+    const syncLikes = (state: ProfileState, action: PayloadAction<{ postId: string; likes: string[] }>) => {
+      const post = state.posts.find((p) => p.id === action.payload.postId);
+      if (post) post.likes = action.payload.likes;
+    };
+    builder.addCase(toggleLike.fulfilled, syncLikes);
+    builder.addCase(toggleLikeSingle.fulfilled, syncLikes);
   },
 });
 
