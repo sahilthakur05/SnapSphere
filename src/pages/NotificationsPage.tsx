@@ -74,7 +74,7 @@ export function NotificationsPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {notifications.map((n) => {
+            {notifications.map((n, index) => {
               const href = (n.type === 'follow' || n.type === 'story_like')
                 ? `/profile/${n.sender.username}`
                 : n.postId
@@ -85,7 +85,8 @@ export function NotificationsPage() {
                 <Link
                   key={n.id}
                   to={href}
-                  className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${
+                  style={{ animationDelay: `${index * 30}ms`, animationFillMode: 'both' }}
+                  className={`animate-slide-up flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${
                     n.read
                       ? 'border-gray-100 bg-white'
                       : 'border-brand-100 bg-brand-50'

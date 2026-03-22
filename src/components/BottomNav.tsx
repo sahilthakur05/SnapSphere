@@ -19,7 +19,7 @@ export function BottomNav({ username, avatar, onCreatePost, unreadMessages = 0 }
       <div className="flex h-14 items-center justify-around">
         <Link
           to="/"
-          className={`flex flex-col items-center gap-0.5 ${isActive("/") ? "text-brand-500" : "text-gray-500"}`}
+          className={`flex flex-col items-center gap-0.5 transition-colors duration-150 ${isActive("/") ? "text-brand-500" : "text-gray-500"}`}
         >
           <Home className="h-6 w-6" />
           <span className="text-[10px]">Home</span>
@@ -27,7 +27,7 @@ export function BottomNav({ username, avatar, onCreatePost, unreadMessages = 0 }
 
         <Link
           to="/explore"
-          className={`flex flex-col items-center gap-0.5 ${isActive("/explore") ? "text-brand-500" : "text-gray-500"}`}
+          className={`flex flex-col items-center gap-0.5 transition-colors duration-150 ${isActive("/explore") ? "text-brand-500" : "text-gray-500"}`}
         >
           <Search className="h-6 w-6" />
           <span className="text-[10px]">Explore</span>
@@ -44,7 +44,7 @@ export function BottomNav({ username, avatar, onCreatePost, unreadMessages = 0 }
 
         <Link
           to="/messages"
-          className={`relative flex flex-col items-center gap-0.5 ${pathname.startsWith("/messages") ? "text-brand-500" : "text-gray-500"}`}
+          className={`relative flex flex-col items-center gap-0.5 transition-colors duration-150 ${pathname.startsWith("/messages") ? "text-brand-500" : "text-gray-500"}`}
         >
           <MessageCircle className="h-6 w-6" />
           {unreadMessages > 0 && (
@@ -57,7 +57,7 @@ export function BottomNav({ username, avatar, onCreatePost, unreadMessages = 0 }
 
         <Link
           to={`/profile/${username}`}
-          className={`flex flex-col items-center gap-0.5 ${pathname.startsWith("/profile") ? "text-brand-500" : "text-gray-500"}`}
+          className={`flex flex-col items-center gap-0.5 transition-colors duration-150 ${pathname.startsWith("/profile") ? "text-brand-500" : "text-gray-500"}`}
         >
           {avatar ? (
             <img

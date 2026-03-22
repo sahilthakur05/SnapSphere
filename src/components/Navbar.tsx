@@ -41,7 +41,7 @@ export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount =
         <div className="flex items-center gap-4">
           <Link
             to="/explore"
-            className="hidden text-gray-500 hover:text-brand-500 sm:block"
+            className="hidden text-gray-500 transition-colors duration-150 hover:text-brand-500 sm:block"
             title="Explore"
           >
             <Search className="h-5 w-5" />
@@ -49,7 +49,7 @@ export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount =
 
           <Link
             to="/notifications"
-            className="relative text-gray-500 hover:text-brand-500"
+            className="relative text-gray-500 transition-colors duration-150 hover:text-brand-500"
             title="Notifications"
           >
             <Bell className="h-5 w-5" />
@@ -61,7 +61,7 @@ export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount =
           </Link>
           <Link
             to="/messages"
-            className="relative hidden text-gray-500 hover:text-brand-500 sm:block"
+            className="relative hidden text-gray-500 transition-colors duration-150 hover:text-brand-500 sm:block"
             title="Messages"
           >
             <MessageCircle className="h-5 w-5" />
@@ -74,7 +74,7 @@ export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount =
 
           <Link
             to="/saved"
-            className="text-gray-500 hover:text-brand-500"
+            className="text-gray-500 transition-colors duration-150 hover:text-brand-500"
             title="Saved"
           >
             <Bookmark className="h-5 w-5" />
@@ -82,7 +82,7 @@ export function Navbar({ username, avatar, onCreatePost, onLogout, unreadCount =
 
           <button
             onClick={onCreatePost}
-            className="hidden items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600 sm:flex"
+            className="hidden items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white transition-all duration-150 hover:bg-brand-600 hover:shadow-md sm:flex"
           >
             <PlusSquare className="h-4 w-4" />
             Post

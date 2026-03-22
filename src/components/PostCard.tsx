@@ -73,7 +73,7 @@ const isOwner = post.user.id === currentUserId;
   };
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+    <div className="animate-fade-in rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
       {/* Post header */}
       <div className="flex items-center gap-3 px-4 py-3">
         <Link to={`/profile/${post.user.username}`}>
@@ -106,7 +106,7 @@ const isOwner = post.user.id === currentUserId;
               <MoreHorizontal className="h-5 w-5" />
             </button>
             {showMenu && (
-              <div className="absolute right-0 top-8 z-10 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+              <div className="animate-scale-in absolute right-0 top-8 z-10 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
                 {isOwner && onEdit && (
                   <button
                     onClick={() => { setShowMenu(false); onEdit(post); }}
@@ -149,7 +149,7 @@ const isOwner = post.user.id === currentUserId;
         />
         {showHeartAnim && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <Heart className="h-20 w-20 animate-ping fill-white text-white drop-shadow-lg" />
+            <Heart className="h-20 w-20 animate-heart-pop fill-white text-white drop-shadow-lg" />
           </div>
         )}
       </div>
@@ -161,7 +161,7 @@ const isOwner = post.user.id === currentUserId;
           className="flex items-center gap-1.5"
         >
           <Heart
-            className={`h-6 w-6 ${isLiked ? "fill-red-500 text-red-500" : "text-gray-600 hover:text-red-500"}`}
+            className={`h-6 w-6 transition-all duration-200 ${isLiked ? "fill-red-500 text-red-500 scale-110" : "text-gray-600 hover:text-red-500"}`}
           />
         </button>
         <button onClick={() => navigate(`/post/${post.id}`)}>
@@ -172,7 +172,7 @@ const isOwner = post.user.id === currentUserId;
             <Send className="h-5 w-5 text-gray-600 hover:text-gray-900" />
           </button>
           {showShareMenu && (
-            <div className="absolute left-0 top-8 z-10 w-44 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+            <div className="animate-scale-in absolute left-0 top-8 z-10 w-44 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
@@ -198,7 +198,7 @@ const isOwner = post.user.id === currentUserId;
         </div>
         <button onClick={() => onToggleSave(post.id)} className="ml-auto">
           <Bookmark
-            className={`h-6 w-6 ${isSaved ? "fill-gray-900 text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
+            className={`h-6 w-6 transition-all duration-200 ${isSaved ? "fill-gray-900 text-gray-900 scale-110" : "text-gray-600 hover:text-gray-900"}`}
           />
         </button>
       </div>
