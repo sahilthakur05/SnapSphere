@@ -30,6 +30,7 @@ export interface Message {
   id: string;
   senderId: string;
   text: string;
+  image: string | null;
   storyImage: string | null;
   read: boolean;
   createdAt: string;
@@ -156,6 +157,7 @@ const messageSlice = createSlice({
           id: msg.id,
           senderId: msg.senderId,
           text: msg.text,
+          image: msg.image || null,
           storyImage: msg.storyImage,
           read: msg.read,
           createdAt: msg.createdAt,

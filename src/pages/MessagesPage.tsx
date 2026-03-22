@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { fetchConversations } from "../features/message/messageSlice";
 import { logout } from "../features/auth/authSlice";
 import { timeAgo } from "../lib/timeAgo";
-import { ArrowLeft, MessageCircle, Send } from "lucide-react";
+import { ArrowLeft, MessageCircle, Send, ImageIcon } from "lucide-react";
 import { Navbar } from "../components/Navbar";
 import { BottomNav } from "../components/BottomNav";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -120,7 +120,14 @@ export default function MessagesPage() {
                     )}
                     <p className={`truncate text-sm ${conv.unreadCount > 0 ? "font-medium text-gray-800" : "text-gray-500"}`}>
                       {conv.lastMessage.storyImage ? "Replied to story: " : ""}
-                      {conv.lastMessage.text}
+                      {(conv.lastMessage as any).image && !conv.lastMessage.text ? (
+                        <span className="flex items-center gap-1">
+                          <ImageIcon size={12} />
+                          Photo
+                        </span>
+                      ) : (
+                        conv.lastMessage.text
+                      )}
                     </p>
                   </div>
                 </div>

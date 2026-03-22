@@ -7,8 +7,9 @@ import {
 } from "../features/message/messageSlice";
 import { getSocket } from "../lib/socket";
 import { timeAgo } from "../lib/timeAgo";
-import { ArrowLeft, Send, Image } from "lucide-react";
+import { ArrowLeft, Send, Image, Smile, Paperclip, X } from "lucide-react";
 import { usePageTitle } from "../hooks/usePageTitle";
+import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
 
 export default function ChatPage() {
   const { userId } = useParams<{ userId: string }>();
@@ -19,6 +20,12 @@ export default function ChatPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isSendingImage, setIsSendingImage] = useState(false);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   const partner = currentChat.user;
   const isPartnerOnline = userId ? onlineUsers.includes(userId) : false;
@@ -28,7 +35,6 @@ export default function ChatPage() {
   useEffect(() => {
     if (userId) {
       dispatch(fetchMessages(userId));
-      // Mark messages as read
       getSocket()?.emit("markRead", { senderId: userId });
     }
     return () => {
@@ -40,17 +46,51 @@ export default function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [currentChat.messages]);
 
-  // Send via socket
+  // Close emoji picker on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(e.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    };
+    if (showEmojiPicker) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showEmojiPicker]);
+
+  // Send text message via socket
   const handleSend = useCallback(() => {
-    if (!text.trim() || !userId) return;
+    if ((!text.trim() && !imagePreview) || !userId) return;
     const socket = getSocket();
-    if (socket) {
+    if (!socket) return;
+
+    if (imagePreview && imageFile) {
+      // Send image message
+      setIsSendingImage(true);
+      const reader = new FileReader();
+      reader.onload = () => {
+        socket.emit("sendImage", {
+          recipientId: userId,
+          imageData: reader.result as string,
+          text: text.trim(),
+        });
+        socket.emit("stopTyping", { recipientId: userId });
+        setText("");
+        setImagePreview(null);
+        setImageFile(null);
+        setIsSendingImage(false);
+        inputRef.current?.focus();
+      };
+      reader.readAsDataURL(imageFile);
+    } else {
+      // Send text message
       socket.emit("sendMessage", { recipientId: userId, text: text.trim() });
       socket.emit("stopTyping", { recipientId: userId });
+      setText("");
+      inputRef.current?.focus();
     }
-    setText("");
-    inputRef.current?.focus();
-  }, [text, userId]);
+  }, [text, userId, imagePreview, imageFile]);
 
   // Typing indicator
   const handleInputChange = (value: string) => {
@@ -71,6 +111,37 @@ export default function ChatPage() {
       e.preventDefault();
       handleSend();
     }
+  };
+
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    setText((prev) => prev + emojiData.emoji);
+    inputRef.current?.focus();
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Only image files are supported");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size must be under 5MB");
+      return;
+    }
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    // Reset file input so the same file can be re-selected
+    e.target.value = "";
+  };
+
+  const clearImagePreview = () => {
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImagePreview(null);
+    setImageFile(null);
   };
 
   if (chatLoading) {
@@ -173,7 +244,19 @@ export default function ChatPage() {
                           </div>
                         </div>
                       )}
-                      <p className="text-[14px] leading-relaxed">{msg.text}</p>
+                      {msg.image && (
+                        <div className="mb-2 overflow-hidden rounded-lg">
+                          <img
+                            src={msg.image}
+                            alt="Shared image"
+                            className="max-h-60 w-full cursor-pointer rounded-lg object-cover"
+                            onClick={() => window.open(msg.image!, "_blank")}
+                          />
+                        </div>
+                      )}
+                      {msg.text && (
+                        <p className="text-[14px] leading-relaxed break-words">{msg.text}</p>
+                      )}
                       <p
                         className={`mt-1 text-right text-[10px] ${
                           isOwn ? "text-blue-200" : "text-gray-400"
@@ -191,24 +274,82 @@ export default function ChatPage() {
         )}
       </div>
 
+      {/* Image preview */}
+      {imagePreview && (
+        <div className="border-t bg-white px-4 py-2">
+          <div className="relative inline-block">
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="h-20 w-20 rounded-lg object-cover border border-gray-200"
+            />
+            <button
+              onClick={clearImagePreview}
+              className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-gray-800 text-white shadow-sm hover:bg-gray-700"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Emoji Picker */}
+      {showEmojiPicker && (
+        <div ref={emojiPickerRef} className="absolute bottom-20 left-4 z-20">
+          <EmojiPicker
+            onEmojiClick={handleEmojiClick}
+            width={320}
+            height={400}
+          />
+        </div>
+      )}
+
       {/* Input */}
       <div className="sticky bottom-0 border-t bg-white px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         <div className="mx-auto flex max-w-2xl items-center gap-2">
+          <button
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition hover:bg-gray-100 ${
+              showEmojiPicker ? "text-brand-500" : "text-gray-400"
+            }`}
+            title="Emoji"
+          >
+            <Smile size={20} />
+          </button>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+            title="Attach image"
+          >
+            <Paperclip size={20} />
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
           <input
             ref={inputRef}
             type="text"
             value={text}
             onChange={(e) => handleInputChange(e.target.value)}
             onKeyDown={handleKeyDown}
+            onFocus={() => setShowEmojiPicker(false)}
             placeholder="Type a message..."
             className="flex-1 rounded-full border border-gray-200 bg-gray-50 px-5 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-1 focus:ring-blue-100"
           />
           <button
             onClick={handleSend}
-            disabled={!text.trim()}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-white shadow-sm transition hover:bg-blue-600 disabled:opacity-30 disabled:hover:bg-blue-500"
+            disabled={(!text.trim() && !imagePreview) || isSendingImage}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-500 text-white shadow-sm transition hover:bg-blue-600 disabled:opacity-30 disabled:hover:bg-blue-500"
           >
-            <Send size={16} />
+            {isSendingImage ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <Send size={16} />
+            )}
           </button>
         </div>
       </div>
