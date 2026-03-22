@@ -63,7 +63,7 @@ export function HomePage() {
   //fetch post on mount
   useEffect(() => {
     dispatch(fetchPosts(1));
-    dispatch(fetchNotifications());
+    dispatch(fetchNotifications(1));
     dispatch(fetchSuggestions());
     dispatch(fetchStories());
     dispatch(fetchConversations());
