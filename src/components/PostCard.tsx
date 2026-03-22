@@ -11,7 +11,7 @@ interface Props {
   post: Post;
   currentUserId: string;
   onLike: (postId: string) => void;
-  onComment: (postId: string, text: string) => void;
+  onComment: (postId: string, text: string) => void | Promise<any>;
   isSaved: boolean; // ← add
   onToggleSave: (postId: string) => void;
   onDelete?: (postId: string) => void;
@@ -47,10 +47,17 @@ const [captionExpanded, setCaptionExpanded] = useState(false);
 const lastTapRef = useRef(0);
 const isOwner = post.user.id === currentUserId;
 
-  const handleComment = () => {
+  const [isCommenting, setIsCommenting] = useState(false);
+
+  const handleComment = async () => {
     if (!commentText.trim()) return;
-    onComment(post.id, commentText.trim());
-    setCommentText("");
+    setIsCommenting(true);
+    try {
+      await onComment(post.id, commentText.trim());
+      setCommentText("");
+    } finally {
+      setIsCommenting(false);
+    }
   };
 
   const singleTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -148,7 +155,14 @@ const isOwner = post.user.id === currentUserId;
       </div>
 
       {/* Image with double-tap to like, single-tap for lightbox */}
-      <div className="relative" onClick={handleImageTap}>
+      <div
+        className="relative"
+        role="button"
+        tabIndex={0}
+        aria-label="Double-click to like, click to view"
+        onClick={handleImageTap}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onLike(post.id); } }}
+      >
         <img
           src={post.image}
           alt="Post"
@@ -166,17 +180,18 @@ const isOwner = post.user.id === currentUserId;
       <div className="flex items-center gap-4 px-4 pt-2">
         <button
           onClick={() => onLike(post.id)}
+          aria-label={isLiked ? "Unlike post" : "Like post"}
           className="flex items-center gap-1.5"
         >
           <Heart
             className={`h-6 w-6 transition-all duration-200 ${isLiked ? "fill-red-500 text-red-500 scale-110" : "text-gray-600 hover:text-red-500"}`}
           />
         </button>
-        <button onClick={() => navigate(`/post/${post.id}`)}>
+        <button onClick={() => navigate(`/post/${post.id}`)} aria-label="View comments">
           <MessageCircle className="h-6 w-6 text-gray-600 hover:text-gray-900" />
         </button>
         <div className="relative">
-          <button onClick={() => setShowShareMenu(!showShareMenu)}>
+          <button onClick={() => setShowShareMenu(!showShareMenu)} aria-label="Share post">
             <Send className="h-5 w-5 text-gray-600 hover:text-gray-900" />
           </button>
           {showShareMenu && (
@@ -204,7 +219,7 @@ const isOwner = post.user.id === currentUserId;
             </div>
           )}
         </div>
-        <button onClick={() => onToggleSave(post.id)} className="ml-auto">
+        <button onClick={() => onToggleSave(post.id)} aria-label={isSaved ? "Unsave post" : "Save post"} className="ml-auto">
           <Bookmark
             className={`h-6 w-6 transition-all duration-200 ${isSaved ? "fill-gray-900 text-gray-900 scale-110" : "text-gray-600 hover:text-gray-900"}`}
           />
@@ -292,15 +307,20 @@ const isOwner = post.user.id === currentUserId;
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}
           placeholder="Add a comment…"
-          className="flex-1 text-sm outline-none placeholder:text-gray-400"
-          onKeyDown={(e) => e.key === "Enter" && handleComment()}
+          disabled={isCommenting}
+          className="flex-1 text-sm outline-none placeholder:text-gray-400 disabled:opacity-50"
+          onKeyDown={(e) => e.key === "Enter" && !isCommenting && handleComment()}
         />
         <button
           onClick={handleComment}
-          disabled={!commentText.trim()}
+          disabled={!commentText.trim() || isCommenting}
           className="text-brand-500 disabled:opacity-40"
         >
-          <Send className="h-4 w-4" />
+          {isCommenting ? (
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
         </button>
       </div>
       <ConfirmModal

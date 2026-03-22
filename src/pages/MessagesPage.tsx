@@ -86,11 +86,17 @@ export default function MessagesPage() {
               >
                 {/* Avatar */}
                 <div className="relative">
-                  <img
-                    src={conv.user.avatar || `https://ui-avatars.com/api/?name=${conv.user.fullName}&background=random&size=128`}
-                    alt={conv.user.username}
-                    className="h-14 w-14 rounded-full object-cover ring-2 ring-gray-100"
-                  />
+                  {conv.user.avatar ? (
+                    <img
+                      src={conv.user.avatar}
+                      alt={conv.user.username}
+                      className="h-14 w-14 rounded-full object-cover ring-2 ring-gray-100"
+                    />
+                  ) : (
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-100 text-lg font-bold text-brand-600 ring-2 ring-gray-100">
+                      {conv.user.fullName?.charAt(0).toUpperCase() || "?"}
+                    </div>
+                  )}
                   {onlineUsers.includes(conv.user.id) && (
                     <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full bg-green-500 ring-2 ring-white" />
                   )}

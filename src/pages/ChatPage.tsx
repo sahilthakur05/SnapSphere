@@ -98,7 +98,8 @@ export default function ChatPage() {
     }
   }, [text, userId, imagePreview, imageFile]);
 
-  // Typing indicator
+  // Typing indicator — stop after idle period
+  const TYPING_TIMEOUT_MS = 1500;
   const handleInputChange = (value: string) => {
     setText(value);
     const socket = getSocket();
@@ -109,7 +110,7 @@ export default function ChatPage() {
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(() => {
       socket.emit("stopTyping", { recipientId: userId });
-    }, 1500);
+    }, TYPING_TIMEOUT_MS);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

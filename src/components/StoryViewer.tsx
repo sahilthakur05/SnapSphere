@@ -68,7 +68,7 @@ export function StoryViewer({
     }
   }, [storyIndex, groupIndex, currentGroup, storyGroups.length, onClose]);
 
-  const goPrev = () => {
+  const goPrev = useCallback(() => {
     if (storyIndex > 0) {
       setStoryIndex(storyIndex - 1);
       setProgress(0);
@@ -79,7 +79,7 @@ export function StoryViewer({
       setProgress(0);
       setIsLiked(false);
     }
-  };
+  }, [storyIndex, groupIndex]);
 
   const handleLike = () => {
     setIsLiked(true);
@@ -129,6 +129,18 @@ export function StoryViewer({
     setIsPaused(replyText.length > 0);
   }, [replyText]);
 
+  // Keyboard navigation: arrows, Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      else if (e.key === "ArrowRight") goNext();
+      else if (e.key === "ArrowLeft") goPrev();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose, goNext, goPrev]);
+
   if (!isOpen || !currentGroup || !currentStory) return null;
 
   return (
@@ -136,6 +148,7 @@ export function StoryViewer({
       {/* Close */}
       <button
         onClick={onClose}
+        aria-label="Close story viewer"
         className="absolute right-4 top-4 z-10 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
       >
         <X className="h-6 w-6" />
@@ -145,6 +158,7 @@ export function StoryViewer({
       {(groupIndex > 0 || storyIndex > 0) && (
         <button
           onClick={goPrev}
+          aria-label="Previous story"
           className="absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white/10 p-1.5 text-white hover:bg-white/20 sm:left-4 sm:p-2"
         >
           <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -155,6 +169,7 @@ export function StoryViewer({
       {(groupIndex < storyGroups.length - 1 || storyIndex < currentGroup.stories.length - 1) && (
         <button
           onClick={goNext}
+          aria-label="Next story"
           className="absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white/10 p-1.5 text-white hover:bg-white/20 sm:right-4 sm:p-2"
         >
           <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />

@@ -94,11 +94,11 @@ export const createPost = createAsyncThunk(
   },
 );
 
-// Like / unlike a post
+// Like / unlike a post (optimistic)
 
 export const toggleLike = createAsyncThunk(
   "posts/toggleLike",
-  async (postId: string, { rejectWithValue }) => {
+  async ({ postId }: { postId: string; userId: string }, { rejectWithValue }) => {
     try {
       const res = await api.put(`/posts/${postId}/like`);
       return res.data;
@@ -144,10 +144,10 @@ export const fetchPostById = createAsyncThunk(
   },
 );
 
-// Like/unlike on the detail page (updates singlePost)
+// Like/unlike on the detail page (optimistic, updates singlePost)
 export const toggleLikeSingle = createAsyncThunk(
   "posts/toggleLikeSingle",
-  async (postId: string, { rejectWithValue }) => {
+  async ({ postId }: { postId: string; userId: string }, { rejectWithValue }) => {
     try {
       const res = await api.put(`/posts/${postId}/like`);
       return res.data;
@@ -327,14 +327,38 @@ const postSlice = createSlice({
       },
     );
 
-    //Toggle like
+    //Toggle like — optimistic update on pending, confirm on fulfilled, rollback on rejected
+    builder.addCase(toggleLike.pending, (state, action) => {
+      const { postId, userId } = action.meta.arg;
+      const post = state.posts.find((p) => p.id === postId);
+      if (post) {
+        if (post.likes.includes(userId)) {
+          post.likes = post.likes.filter((id) => id !== userId);
+        } else {
+          post.likes.push(userId);
+        }
+      }
+    });
     builder.addCase(
       toggleLike.fulfilled,
       (state, action: PayloadAction<{ postId: string; likes: string[] }>) => {
+        // Server is the source of truth — sync
         const post = state.posts.find((p) => p.id === action.payload.postId);
         if (post) post.likes = action.payload.likes;
       },
     );
+    builder.addCase(toggleLike.rejected, (state, action) => {
+      // Rollback: toggle back
+      const { postId, userId } = action.meta.arg;
+      const post = state.posts.find((p) => p.id === postId);
+      if (post) {
+        if (post.likes.includes(userId)) {
+          post.likes = post.likes.filter((id) => id !== userId);
+        } else {
+          post.likes.push(userId);
+        }
+      }
+    });
 
     // Add comment
     builder.addCase(
@@ -361,7 +385,17 @@ const postSlice = createSlice({
       state.singlePost = null;
     });
 
-    // Like/unlike single post
+    // Like/unlike single post — optimistic
+    builder.addCase(toggleLikeSingle.pending, (state, action) => {
+      const { postId, userId } = action.meta.arg;
+      const toggle = (likes: string[]) =>
+        likes.includes(userId) ? likes.filter((id) => id !== userId) : [...likes, userId];
+      if (state.singlePost && state.singlePost.id === postId) {
+        state.singlePost.likes = toggle(state.singlePost.likes);
+      }
+      const feedPost = state.posts.find((p) => p.id === postId);
+      if (feedPost) feedPost.likes = toggle(feedPost.likes);
+    });
     builder.addCase(
       toggleLikeSingle.fulfilled,
       (state, action: PayloadAction<{ postId: string; likes: string[] }>) => {
@@ -374,6 +408,16 @@ const postSlice = createSlice({
         if (feedPost) feedPost.likes = action.payload.likes;
       },
     );
+    builder.addCase(toggleLikeSingle.rejected, (state, action) => {
+      const { postId, userId } = action.meta.arg;
+      const toggle = (likes: string[]) =>
+        likes.includes(userId) ? likes.filter((id) => id !== userId) : [...likes, userId];
+      if (state.singlePost && state.singlePost.id === postId) {
+        state.singlePost.likes = toggle(state.singlePost.likes);
+      }
+      const feedPost = state.posts.find((p) => p.id === postId);
+      if (feedPost) feedPost.likes = toggle(feedPost.likes);
+    });
 
     // Add comment to single post
     builder.addCase(

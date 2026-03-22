@@ -75,21 +75,38 @@ const savedSlice = createSlice({
       state.error = (action.payload as string) || "Failed to fetch saved posts";
     });
 
+    // Optimistic toggle on pending
+    builder.addCase(toggleBookmark.pending, (state, action) => {
+      const postId = action.meta.arg;
+      if (state.savedPostIds.includes(postId)) {
+        state.savedPostIds = state.savedPostIds.filter((id) => id !== postId);
+        state.savedPosts = state.savedPosts.filter((p) => p.id !== postId);
+      } else {
+        state.savedPostIds.push(postId);
+      }
+    });
+    // Confirm with server response
     builder.addCase(
       toggleBookmark.fulfilled,
       (state, action: PayloadAction<{ postId: string; saved: boolean }>) => {
-        if (action.payload.saved) {
-          state.savedPostIds.push(action.payload.postId);
-        } else {
-          state.savedPostIds = state.savedPostIds.filter(
-            (id) => id !== action.payload.postId,
-          );
-          state.savedPosts = state.savedPosts.filter(
-            (p) => p.id !== action.payload.postId,
-          );
+        const { postId, saved } = action.payload;
+        if (saved && !state.savedPostIds.includes(postId)) {
+          state.savedPostIds.push(postId);
+        } else if (!saved) {
+          state.savedPostIds = state.savedPostIds.filter((id) => id !== postId);
+          state.savedPosts = state.savedPosts.filter((p) => p.id !== postId);
         }
       },
     );
+    // Rollback on failure
+    builder.addCase(toggleBookmark.rejected, (state, action) => {
+      const postId = action.meta.arg;
+      if (state.savedPostIds.includes(postId)) {
+        state.savedPostIds = state.savedPostIds.filter((id) => id !== postId);
+      } else {
+        state.savedPostIds.push(postId);
+      }
+    });
   },
 });
 export default savedSlice.reducer;

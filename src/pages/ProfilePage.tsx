@@ -48,7 +48,7 @@ const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null
   }, [dispatch, username]);
 
   const handleFollow = () => {
-    if (profile) dispatch(followUser(profile.id));
+    if (profile) dispatch(followUser({ userId: profile.id, currentUserId: authUser?.id ?? "" }));
   };
 
   const handleLogout = () => {

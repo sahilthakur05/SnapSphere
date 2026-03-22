@@ -63,7 +63,7 @@ export const fetchProfile = createAsyncThunk(
 
 export const followUser = createAsyncThunk(
   "profile/followUser",
-  async (userId: string, { rejectWithValue }) => {
+  async ({ userId }: { userId: string; currentUserId: string }, { rejectWithValue }) => {
     try {
       const res = await api.put(`/users/${userId}/follow`);
       return res.data;
@@ -142,6 +142,17 @@ const profileSlice = createSlice({
       state.isLoading = false;
       state.error = action.payload as string;
     });
+    // Optimistic follow/unfollow
+    builder.addCase(followUser.pending, (state, action) => {
+      const { currentUserId } = action.meta.arg;
+      if (state.profile) {
+        if (state.profile.followers.includes(currentUserId)) {
+          state.profile.followers = state.profile.followers.filter((id) => id !== currentUserId);
+        } else {
+          state.profile.followers.push(currentUserId);
+        }
+      }
+    });
     builder.addCase(
       followUser.fulfilled,
       (state, action: PayloadAction<{ followers: string[] }>) => {
@@ -149,6 +160,15 @@ const profileSlice = createSlice({
       },
     );
     builder.addCase(followUser.rejected, (state, action) => {
+      // Rollback
+      const { currentUserId } = action.meta.arg;
+      if (state.profile) {
+        if (state.profile.followers.includes(currentUserId)) {
+          state.profile.followers = state.profile.followers.filter((id) => id !== currentUserId);
+        } else {
+          state.profile.followers.push(currentUserId);
+        }
+      }
       state.error = (action.payload as string) || "Failed to follow user";
     });
 

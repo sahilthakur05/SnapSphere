@@ -69,10 +69,10 @@ export function HomePage() {
     dispatch(fetchConversations());
   }, [dispatch]);
   const handleLike = (postId: string) => {
-    dispatch(toggleLike(postId));
+    dispatch(toggleLike({ postId, userId: user?.id ?? "" }));
   };
   const handleComment = (postId: string, text: string) => {
-    dispatch(addComment({ postId, text }));
+    return dispatch(addComment({ postId, text }));
   };
   const handleLogout = () => {
     dispatch(logout());

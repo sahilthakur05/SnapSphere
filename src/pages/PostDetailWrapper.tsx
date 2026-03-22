@@ -43,7 +43,7 @@ export function PostDetailWrapper() {
         post={singlePost}
         isLoading={singlePostLoading}
         currentUserId={currentUser?.id ?? ""}
-        onLike={(id) => dispatch(toggleLikeSingle(id))}
+        onLike={(id) => dispatch(toggleLikeSingle({ postId: id, userId: currentUser?.id ?? "" }))}
         onComment={(id, text) =>
           dispatch(addCommentSingle({ postId: id, text }))
         }
