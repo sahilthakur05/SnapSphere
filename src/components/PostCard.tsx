@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2, Pencil, Link2, Check, Flag } from "lucide-react";
 import type { Post } from '../features/post/postSlice';
@@ -54,6 +54,13 @@ const isOwner = post.user.id === currentUserId;
   };
 
   const singleTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up timer on unmount to prevent state update on unmounted component
+  useEffect(() => {
+    return () => {
+      if (singleTapTimer.current) clearTimeout(singleTapTimer.current);
+    };
+  }, []);
 
   const handleImageTap = () => {
     const now = Date.now();
@@ -145,6 +152,7 @@ const isOwner = post.user.id === currentUserId;
         <img
           src={post.image}
           alt="Post"
+          loading="lazy"
           className="w-full max-h-[70vh] cursor-pointer object-cover"
         />
         {showHeartAnim && (

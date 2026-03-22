@@ -171,10 +171,10 @@ export function HomePage() {
                   onComment={handleComment}
                   isSaved={savedPostIds.includes(post.id)}
                   onToggleSave={(id) => dispatch(toggleBookmark(id))}
-                  onDelete={(id) => { dispatch(deletePost(id)); showToast("Post deleted", "success"); }}
+                  onDelete={(id) => { dispatch(deletePost(id)).unwrap().then(() => showToast("Post deleted", "success")).catch(() => showToast("Failed to delete post", "error")); }}
                   onEdit={handleEdit}
                   onShowLikes={handleShowLikes}
-                  onReport={(id, reason) => { dispatch(reportPost({ postId: id, reason })); showToast("Post reported. Thank you.", "info"); }}
+                  onReport={(id, reason) => { dispatch(reportPost({ postId: id, reason })).unwrap().then(() => showToast("Post reported. Thank you.", "info")).catch(() => showToast("Failed to report post", "error")); }}
                 />
               ))}
               <LoadMoreTrigger

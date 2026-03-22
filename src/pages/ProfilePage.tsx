@@ -252,6 +252,7 @@ const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null
                   <img
                     src={post.image}
                     alt="Post"
+                    loading="lazy"
                     className="h-full w-full object-cover transition-opacity group-hover:opacity-75"
                   />
                   <div className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 transition-opacity group-hover:opacity-100">

@@ -18,9 +18,20 @@ export function CreatePostModal({ isOpen, onClose }: Props) {
   const [caption ,setCaption]=useState('')
  const [isSubmitting, setIsSubmitting] = useState(false);
 
+ const [fileError, setFileError] = useState<string | null>(null);
+
  const handleFileChange=(e:ChangeEvent<HTMLInputElement>)=>{
 const selected= e.target.files?.[0]
 if(!selected)return
+setFileError(null);
+if (selected.size > 5 * 1024 * 1024) {
+  setFileError("Image must be under 5MB");
+  return;
+}
+if (!["image/jpeg", "image/png", "image/gif", "image/webp"].includes(selected.type)) {
+  setFileError("Only JPEG, PNG, GIF, and WebP are allowed");
+  return;
+}
 setFile(selected)
 setPreview(URL.createObjectURL(selected))
  }
@@ -81,6 +92,9 @@ if(!isOpen)return null
            onChange={handleFileChange}
            className="hidden"
          />
+         {fileError && (
+           <p className="text-sm text-red-500">{fileError}</p>
+         )}
 
          {/* Caption */}
          <textarea

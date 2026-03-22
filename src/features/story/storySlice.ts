@@ -28,6 +28,7 @@ interface StoryGroup {
 interface StoryState {
   storyGroups: StoryGroup[];
   isLoading: boolean;
+  error: string | null;
   viewedStories: Record<string, string[]>; // userId -> storyIds viewed
 }
 
@@ -51,6 +52,7 @@ function saveViewedStories(viewedStories: Record<string, string[]>) {
 const initialState: StoryState = {
   storyGroups: [],
   isLoading: false,
+  error: null,
   viewedStories: loadViewedStories(),
 };
 
@@ -113,8 +115,9 @@ const storySlice = createSlice({
         state.storyGroups = action.payload;
       },
     );
-    builder.addCase(fetchStories.rejected, (state) => {
+    builder.addCase(fetchStories.rejected, (state, action) => {
       state.isLoading = false;
+      state.error = (action.payload as string) || "Failed to fetch stories";
     });
 
     builder.addCase(

@@ -19,17 +19,34 @@ export function EditProfileModal({ isOpen, onClose, currentFullName, currentAvat
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
 
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null);
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
     if (!selected) return;
+    setFileError(null);
+    if (selected.size > 5 * 1024 * 1024) {
+      setFileError("Image must be under 5MB");
+      return;
+    }
+    if (!["image/jpeg", "image/png", "image/gif", "image/webp"].includes(selected.type)) {
+      setFileError("Only JPEG, PNG, GIF, and WebP are allowed");
+      return;
+    }
     setFile(selected);
     setPreview(URL.createObjectURL(selected));
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    setNameError(null);
+    if (!fullName.trim()) {
+      setNameError("Full name is required");
+      return;
+    }
     const formData = new FormData();
-    formData.append('fullName', fullName);
+    formData.append('fullName', fullName.trim());
     formData.append('bio', bio);
     if (file) formData.append('avatar', file);
     onSave(formData);
@@ -70,6 +87,7 @@ export function EditProfileModal({ isOpen, onClose, currentFullName, currentAvat
               </button>
             </div>
             <input ref={fileRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+            {fileError && <p className="text-sm text-red-500">{fileError}</p>}
           </div>
 
           {/* Full Name */}
@@ -78,9 +96,10 @@ export function EditProfileModal({ isOpen, onClose, currentFullName, currentAvat
             <input
               type="text"
               value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+              onChange={(e) => { setFullName(e.target.value); setNameError(null); }}
+              className={`w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-1 ${nameError ? "border-red-400 focus:border-red-500 focus:ring-red-200" : "border-gray-300 focus:border-brand-500 focus:ring-brand-500"}`}
             />
+            {nameError && <p className="mt-1 text-sm text-red-500">{nameError}</p>}
           </div>
 
           {/* Bio */}

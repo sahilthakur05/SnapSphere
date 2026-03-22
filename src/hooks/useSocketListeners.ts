@@ -7,26 +7,17 @@ import {
   updateTypingStatus,
   updateOnlineUsers,
   markMessagesAsRead,
+  type Message,
 } from "../features/message/messageSlice";
 
 export function useSocketListeners() {
   const dispatch = useAppDispatch();
   const [connected, setConnected] = useState(false);
 
-  // Poll for socket availability and track connection state
+  // Poll for socket availability with a reasonable interval and max attempts
   useEffect(() => {
-    const check = setInterval(() => {
-      const s = getSocket();
-      if (s) {
-        setConnected(s.connected);
-        // Listen for future connect/disconnect to update state
-        s.off("connect", onConnect);
-        s.off("disconnect", onDisconnect);
-        s.on("connect", onConnect);
-        s.on("disconnect", onDisconnect);
-        clearInterval(check);
-      }
-    }, 100);
+    let attempts = 0;
+    const MAX_ATTEMPTS = 50; // stop after 50 tries (5 seconds)
 
     function onConnect() {
       setConnected(true);
@@ -34,6 +25,21 @@ export function useSocketListeners() {
     function onDisconnect() {
       setConnected(false);
     }
+
+    const check = setInterval(() => {
+      attempts++;
+      const s = getSocket();
+      if (s) {
+        setConnected(s.connected);
+        s.off("connect", onConnect);
+        s.off("disconnect", onDisconnect);
+        s.on("connect", onConnect);
+        s.on("disconnect", onDisconnect);
+        clearInterval(check);
+      } else if (attempts >= MAX_ATTEMPTS) {
+        clearInterval(check);
+      }
+    }, 100);
 
     return () => {
       clearInterval(check);
@@ -50,11 +56,11 @@ export function useSocketListeners() {
     const socket = getSocket();
     if (!socket) return;
 
-    const onNewMessage = (message: any) => {
+    const onNewMessage = (message: Message & { fromUserId?: string }) => {
       dispatch(receiveMessage(message));
     };
 
-    const onMessageSent = (message: any) => {
+    const onMessageSent = (message: Message) => {
       dispatch(messageSentViaSocket(message));
     };
 

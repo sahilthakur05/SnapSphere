@@ -21,8 +21,9 @@ export function PrivateRoute() {
   useSocketListeners();
 
   if (isLoading) return (
-    <div className="flex h-screen items-center justify-center bg-gray-50">
+    <div className="flex h-screen items-center justify-center bg-gray-50" role="status">
       <div className="h-10 w-10 animate-spin rounded-full border-3 border-brand-500 border-t-transparent" />
+      <span className="sr-only">Loading…</span>
     </div>
   );
   if (!isAuthenticated) return <Navigate to="/login" replace />;

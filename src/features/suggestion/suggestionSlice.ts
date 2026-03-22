@@ -25,7 +25,7 @@ const initialState: SuggestionState = {
 // fetch sugggestiions poost
 
 export const fetchSuggestions = createAsyncThunk(
-  "",
+  "suggestions/fetchSuggestions",
   async (_, { rejectWithValue }) => {
     try {
       const res = await api.get("/users/suggestions");

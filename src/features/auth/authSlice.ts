@@ -61,7 +61,7 @@ export const login = createAsyncThunk(
       const res = await api.post("/auth/login", data);
       return res.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "login faild");
+      return rejectWithValue(error.response?.data?.message || "Login failed");
     }
   },
 );

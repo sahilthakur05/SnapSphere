@@ -42,7 +42,7 @@ export default function MessagesPage() {
           </div>
           <Link
             to="/explore"
-            className="flex items-center gap-1.5 rounded-full bg-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-600"
+            className="flex items-center gap-1.5 rounded-full bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600"
           >
             <Send size={14} />
             New
@@ -64,14 +64,14 @@ export default function MessagesPage() {
           </div>
         ) : conversations.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-2xl bg-white py-20 shadow-sm">
-            <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-blue-50">
-              <MessageCircle size={36} className="text-blue-400" />
+            <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-brand-50">
+              <MessageCircle size={36} className="text-brand-400" />
             </div>
             <p className="text-lg font-semibold text-gray-700">No messages yet</p>
             <p className="mt-1 text-sm text-gray-400">Reply to a story or start a conversation</p>
             <Link
               to="/explore"
-              className="mt-6 rounded-full bg-blue-500 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-blue-600"
+              className="mt-6 rounded-full bg-brand-500 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-brand-600"
             >
               Find People
             </Link>
@@ -95,7 +95,7 @@ export default function MessagesPage() {
                     <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full bg-green-500 ring-2 ring-white" />
                   )}
                   {conv.unreadCount > 0 && (
-                    <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-bold text-white ring-2 ring-white">
+                    <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 px-1 text-[10px] font-bold text-white ring-2 ring-white">
                       {conv.unreadCount}
                     </span>
                   )}

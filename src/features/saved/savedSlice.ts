@@ -10,12 +10,14 @@ interface SavedState {
   savedPosts: Post[];
   savedPostIds: string[];
   isLoading: boolean;
+  error: string | null;
 }
 
 const initialState: SavedState = {
   savedPosts: [],
   savedPostIds: [],
   isLoading: false,
+  error: null,
 };
 
 // Fetch all saved posts
@@ -68,8 +70,9 @@ const savedSlice = createSlice({
         state.savedPostIds = action.payload.savedPostIds;
       },
     );
-    builder.addCase(fetchSavedPosts.rejected, (state) => {
+    builder.addCase(fetchSavedPosts.rejected, (state, action) => {
       state.isLoading = false;
+      state.error = (action.payload as string) || "Failed to fetch saved posts";
     });
 
     builder.addCase(

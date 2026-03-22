@@ -9,6 +9,8 @@ import { getSocket } from "../lib/socket";
 import { timeAgo } from "../lib/timeAgo";
 import { ArrowLeft, Send, Image, Smile, Paperclip, X } from "lucide-react";
 import { usePageTitle } from "../hooks/usePageTitle";
+import { useToast } from "../hooks/useToast";
+import { Toast } from "../components/Toast";
 import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
 
 export default function ChatPage() {
@@ -26,6 +28,7 @@ export default function ChatPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isSendingImage, setIsSendingImage] = useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const { toast, showToast, hideToast } = useToast();
 
   const partner = currentChat.user;
   const isPartnerOnline = userId ? onlineUsers.includes(userId) : false;
@@ -39,6 +42,8 @@ export default function ChatPage() {
     }
     return () => {
       dispatch(clearCurrentChat());
+      // Clean up any blob URL to prevent memory leak
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
     };
   }, [dispatch, userId]);
 
@@ -77,6 +82,7 @@ export default function ChatPage() {
         });
         socket.emit("stopTyping", { recipientId: userId });
         setText("");
+        if (imagePreview) URL.revokeObjectURL(imagePreview);
         setImagePreview(null);
         setImageFile(null);
         setIsSendingImage(false);
@@ -123,12 +129,12 @@ export default function ChatPage() {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      alert("Only image files are supported");
+      showToast("Only image files are supported", "error");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert("File size must be under 5MB");
+      showToast("File size must be under 5MB", "error");
       return;
     }
 
@@ -154,6 +160,7 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen flex-col bg-gray-50">
+      <Toast message={toast.message} type={toast.type} isVisible={toast.isVisible} onClose={hideToast} />
       {/* Header */}
       <div className="sticky top-0 z-10 flex items-center gap-3 border-b bg-white px-4 py-3 shadow-sm">
         <Link
@@ -227,7 +234,7 @@ export default function ChatPage() {
                     <div
                       className={`max-w-[70%] rounded-2xl px-4 py-2.5 shadow-sm ${
                         isOwn
-                          ? "rounded-br-md bg-blue-500 text-white"
+                          ? "rounded-br-md bg-brand-500 text-white"
                           : "rounded-bl-md bg-white text-gray-900"
                       }`}
                     >
@@ -238,7 +245,7 @@ export default function ChatPage() {
                             alt="Story"
                             className="h-28 w-24 object-cover"
                           />
-                          <div className={`flex items-center gap-1 px-2 py-1 text-[10px] ${isOwn ? "bg-blue-600 text-blue-100" : "bg-gray-50 text-gray-400"}`}>
+                          <div className={`flex items-center gap-1 px-2 py-1 text-[10px] ${isOwn ? "bg-brand-600 text-brand-100" : "bg-gray-50 text-gray-400"}`}>
                             <Image size={10} />
                             Replied to story
                           </div>
@@ -338,12 +345,12 @@ export default function ChatPage() {
             onKeyDown={handleKeyDown}
             onFocus={() => setShowEmojiPicker(false)}
             placeholder="Type a message..."
-            className="flex-1 rounded-full border border-gray-200 bg-gray-50 px-5 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-1 focus:ring-blue-100"
+            className="flex-1 rounded-full border border-gray-200 bg-gray-50 px-5 py-2.5 text-sm outline-none transition focus:border-brand-400 focus:bg-white focus:ring-1 focus:ring-brand-100"
           />
           <button
             onClick={handleSend}
             disabled={(!text.trim() && !imagePreview) || isSendingImage}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-500 text-white shadow-sm transition hover:bg-blue-600 disabled:opacity-30 disabled:hover:bg-blue-500"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-500 text-white shadow-sm transition hover:bg-brand-600 disabled:opacity-30 disabled:hover:bg-brand-500"
           >
             {isSendingImage ? (
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

@@ -148,6 +148,9 @@ const profileSlice = createSlice({
         if (state.profile) state.profile.followers = action.payload.followers;
       },
     );
+    builder.addCase(followUser.rejected, (state, action) => {
+      state.error = (action.payload as string) || "Failed to follow user";
+    });
 
     builder.addCase(
       updateProfile.fulfilled,
@@ -155,6 +158,9 @@ const profileSlice = createSlice({
         state.profile = action.payload.user;
       },
     );
+    builder.addCase(updateProfile.rejected, (state, action) => {
+      state.error = (action.payload as string) || "Failed to update profile";
+    });
     builder.addCase(fetchFollowList.pending, (state) => {
       state.followListLoading = true;
     });

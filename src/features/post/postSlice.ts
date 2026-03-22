@@ -312,9 +312,10 @@ const postSlice = createSlice({
      state.hasMore = action.payload.hasMore;
      state.currentPage = action.meta.arg || 1;
    });
-    builder.addCase(fetchPosts.rejected, (state) => {
+    builder.addCase(fetchPosts.rejected, (state, action) => {
       state.isLoading = false;
       state.loadingMore = false;
+      state.error = (action.payload as string) || "Failed to fetch posts";
     });
     
 

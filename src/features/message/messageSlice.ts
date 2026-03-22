@@ -44,6 +44,7 @@ interface MessageState {
   };
   isLoading: boolean;
   chatLoading: boolean;
+  error: string | null;
   totalUnread: number;
   onlineUsers: string[];
   typingUsers: Record<string, boolean>;
@@ -54,6 +55,7 @@ const initialState: MessageState = {
   currentChat: { user: null, messages: [] },
   isLoading: false,
   chatLoading: false,
+  error: null,
   totalUnread: 0,
   onlineUsers: [],
   typingUsers: {},
@@ -214,8 +216,9 @@ const messageSlice = createSlice({
         );
       },
     );
-    builder.addCase(fetchConversations.rejected, (state) => {
+    builder.addCase(fetchConversations.rejected, (state, action) => {
       state.isLoading = false;
+      state.error = (action.payload as string) || "Failed to fetch conversations";
     });
 
     // Chat messages
@@ -235,8 +238,9 @@ const messageSlice = createSlice({
         };
       },
     );
-    builder.addCase(fetchMessages.rejected, (state) => {
+    builder.addCase(fetchMessages.rejected, (state, action) => {
       state.chatLoading = false;
+      state.error = (action.payload as string) || "Failed to fetch messages";
     });
 
     // Send message
